@@ -1,0 +1,38 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="96" fill="#e9e9e4"/>
+  <!-- Dot-matrix "G" glyph, 9x9 grid -->
+  <g fill="#111111">
+    <!-- grid spacing 32px, dot radius 10px, origin 128,112 -->
+    <!-- row 1 -->
+    <circle cx="192" cy="128" r="12"/>
+    <circle cx="224" cy="128" r="12"/>
+    <circle cx="256" cy="128" r="12"/>
+    <circle cx="288" cy="128" r="12"/>
+    <!-- row 2 -->
+    <circle cx="160" cy="160" r="12"/>
+    <circle cx="320" cy="160" r="12"/>
+    <!-- row 3 -->
+    <circle cx="144" cy="192" r="12"/>
+    <!-- row 4 -->
+    <circle cx="128" cy="224" r="12"/>
+    <!-- row 5 (middle) -->
+    <circle cx="128" cy="256" r="12"/>
+    <circle cx="288" cy="256" r="12"/>
+    <circle cx="320" cy="256" r="12"/>
+    <circle cx="352" cy="256" r="12"/>
+    <!-- row 6 -->
+    <circle cx="128" cy="288" r="12"/>
+    <circle cx="352" cy="288" r="12"/>
+    <!-- row 7 -->
+    <circle cx="144" cy="320" r="12"/>
+    <circle cx="352" cy="320" r="12"/>
+    <!-- row 8 -->
+    <circle cx="160" cy="352" r="12"/>
+    <circle cx="320" cy="352" r="12"/>
+    <circle cx="288" cy="352" r="12"/>
+    <!-- row 9 -->
+    <circle cx="192" cy="376" r="12"/>
+    <circle cx="224" cy="376" r="12"/>
+    <circle cx="256" cy="376" r="12"/>
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+background-color=#ffffff
+text-color=#111111
+border-color=#1a1a1a
+border-size=2
+border-radius=16
+padding=12
+margin=10
+font=sans-serif 11
+default-timeout=6000
+layer=overlay
+anchor=top-right
+width=320
+height=100
+
+[urgency=high]
+border-color=#b91c1c
