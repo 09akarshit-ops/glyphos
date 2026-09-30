@@ -1,89 +1,134 @@
-Screenshot Manifest - original filename mapping
-============================================================
-
-organized/screenshots/day-01-2026-09-04/01-010526.png  <-  screenshot_20260904_010526.png
-organized/screenshots/day-01-2026-09-04/02-013137.png  <-  screenshot_20260904_013137.png
-organized/screenshots/day-01-2026-09-04/03-014426.png  <-  screenshot_20260904_014426.png
-organized/screenshots/day-02-2026-09-06/01-015842.png  <-  screenshot-20260906-015842.png
-organized/screenshots/day-02-2026-09-06/02-020758.png  <-  screenshot-20260906-020758.png
-organized/screenshots/day-02-2026-09-06/03-021345.png  <-  screenshot-20260906-021345.png
-organized/screenshots/day-02-2026-09-06/04-021610.png  <-  screenshot-20260906-021610.png
-organized/screenshots/day-02-2026-09-06/05-022919.png  <-  screenshot-20260906-022919.png
-organized/screenshots/day-02-2026-09-06/06-022926.png  <-  screenshot-20260906-022926.png
-organized/screenshots/day-02-2026-09-06/07-023001.png  <-  screenshot-20260906-023001.png
-organized/screenshots/day-02-2026-09-06/08-030146.png  <-  screenshot-20260906-030146.png
-organized/screenshots/day-03-2026-09-08/01-005906.png  <-  screenshot-20260908-005906.png
-organized/screenshots/day-03-2026-09-08/02-010602.png  <-  screenshot-20260908-010602.png
-organized/screenshots/day-03-2026-09-08/03-010619.png  <-  screenshot-20260908-010619.png
-organized/screenshots/day-03-2026-09-08/04-011106.png  <-  screenshot-20260908-011106.png
-organized/screenshots/day-03-2026-09-08/05-011502.png  <-  screenshot-20260908-011502.png
-organized/screenshots/day-03-2026-09-08/06-011804.png  <-  screenshot-20260908-011804.png
-organized/screenshots/day-03-2026-09-08/07-011924.png  <-  screenshot-20260908-011924.png
-organized/screenshots/day-03-2026-09-08/08-012144.png  <-  screenshot-20260908-012144.png
-organized/screenshots/day-03-2026-09-08/09-012232.png  <-  screenshot-20260908-012232.png
-organized/screenshots/day-03-2026-09-08/10-012437.png  <-  screenshot-20260908-012437.png
-organized/screenshots/day-03-2026-09-08/11-012448.png  <-  screenshot-20260908-012448.png
-organized/screenshots/day-03-2026-09-08/12-012455.png  <-  screenshot-20260908-012455.png
-organized/screenshots/day-03-2026-09-08/13-012500.png  <-  screenshot-20260908-012500.png
-organized/screenshots/day-03-2026-09-08/14-012507.png  <-  screenshot-20260908-012507.png
-organized/screenshots/day-03-2026-09-08/15-012512.png  <-  screenshot-20260908-012512.png
-organized/screenshots/day-03-2026-09-08/16-012517.png  <-  screenshot-20260908-012517.png
-organized/screenshots/day-03-2026-09-08/17-012700.png  <-  screenshot-20260908-012700.png
-organized/screenshots/day-03-2026-09-08/18-012816.png  <-  screenshot-20260908-012816.png
-organized/screenshots/day-03-2026-09-08/19-223041.png  <-  screenshot-20260908-223041.png
-organized/screenshots/day-03-2026-09-08/20-223049.png  <-  screenshot-20260908-223049.png
-organized/screenshots/day-04-2026-09-09/01-231715.png  <-  screenshot-20260909-231715.png
-organized/screenshots/day-05-2026-09-20/01-222428.png  <-  screenshot-20260920-222428.png
-organized/screenshots/day-05-2026-09-20/02-223415.png  <-  screenshot-20260920-223415.png
-organized/screenshots/day-05-2026-09-20/03-225015.png  <-  screenshot-20260920-225015.png
-organized/screenshots/day-05-2026-09-20/04-225356.png  <-  screenshot-20260920-225356.png
-organized/screenshots/day-05-2026-09-20/05-225742.png  <-  screenshot-20260920-225742.png
-organized/screenshots/day-05-2026-09-20/06-225747.png  <-  screenshot-20260920-225747.png
-organized/screenshots/day-05-2026-09-20/07-230324.png  <-  screenshot-20260920-230324.png
-organized/screenshots/day-05-2026-09-20/08-231543.png  <-  screenshot-20260920-231543.png
-organized/screenshots/day-05-2026-09-20/09-231545.png  <-  screenshot-20260920-231545.png
-organized/screenshots/day-05-2026-09-20/10-231728.png  <-  screenshot-20260920-231728.png
-organized/screenshots/day-05-2026-09-20/11-231801.png  <-  screenshot-20260920-231801.png
-organized/screenshots/day-05-2026-09-20/12-234001.png  <-  screenshot-20260920-234001.png
-organized/screenshots/day-05-2026-09-20/13-234510.png  <-  screenshot-20260920-234510.png
-organized/screenshots/day-05-2026-09-20/14-235309.png  <-  screenshot-20260920-235309.png
-organized/screenshots/day-06-2026-09-21/01-000239.png  <-  screenshot-20260921-000239.png
-organized/screenshots/day-06-2026-09-21/02-000729.png  <-  screenshot-20260921-000729.png
-organized/screenshots/day-06-2026-09-21/03-001440.png  <-  screenshot-20260921-001440.png
-organized/screenshots/day-06-2026-09-21/04-001806.png  <-  screenshot-20260921-001806.png
-organized/screenshots/day-06-2026-09-21/05-002208.png  <-  screenshot-20260921-002208.png
-organized/screenshots/day-06-2026-09-21/06-002216.png  <-  screenshot-20260921-002216.png
-organized/screenshots/day-06-2026-09-21/07-002340.png  <-  screenshot-20260921-002340.png
-organized/screenshots/day-06-2026-09-21/08-002427.png  <-  screenshot-20260921-002427.png
-organized/screenshots/day-06-2026-09-21/09-003411.png  <-  screenshot-20260921-003411.png
-organized/screenshots/day-06-2026-09-21/10-003827.png  <-  screenshot-20260921-003827.png
-organized/screenshots/day-06-2026-09-21/11-004832.png  <-  screenshot-20260921-004832.png
-organized/screenshots/day-06-2026-09-21/12-010248.png  <-  screenshot-20260921-010248.png
-organized/screenshots/day-06-2026-09-21/13-012430.png  <-  screenshot-20260921-012430.png
-organized/screenshots/day-06-2026-09-21/14-013245.png  <-  screenshot-20260921-013245.png
-organized/screenshots/day-06-2026-09-21/15-231821.png  <-  screenshot-20260921-231821.png
-organized/screenshots/day-06-2026-09-21/16-231824.png  <-  screenshot-20260921-231824.png
-organized/screenshots/day-06-2026-09-21/17-231829.png  <-  screenshot-20260921-231829.png
-organized/screenshots/day-06-2026-09-21/18-235913.png  <-  screenshot-20260921-235913.png
-organized/screenshots/day-07-2026-09-22/01-000533.png  <-  screenshot-20260922-000533.png
-organized/screenshots/day-07-2026-09-22/02-000631.png  <-  screenshot-20260922-000631.png
-organized/screenshots/day-07-2026-09-22/03-001125.png  <-  screenshot-20260922-001125.png
-organized/screenshots/day-07-2026-09-22/04-002016.png  <-  screenshot-20260922-002016.png
-organized/screenshots/day-07-2026-09-22/05-002050.png  <-  screenshot-20260922-002050.png
-organized/screenshots/day-07-2026-09-22/06-002910.png  <-  screenshot-20260922-002910.png
-organized/screenshots/day-07-2026-09-22/07-005023.png  <-  screenshot-20260922-005023.png
-organized/screenshots/day-07-2026-09-22/08-005034.png  <-  screenshot-20260922-005034.png
-organized/screenshots/day-07-2026-09-22/09-005046.png  <-  screenshot-20260922-005046.png
-organized/screenshots/day-07-2026-09-22/10-005909.png  <-  screenshot-20260922-005909.png
-organized/screenshots/day-07-2026-09-22/11-010624.png  <-  screenshot-20260922-010624.png
-organized/screenshots/day-07-2026-09-22/12-010627.png  <-  screenshot-20260922-010627.png
-organized/screenshots/day-07-2026-09-22/13-010631.png  <-  screenshot-20260922-010631.png
-organized/screenshots/day-07-2026-09-22/14-010828.png  <-  screenshot-20260922-010828.png
-organized/screenshots/day-07-2026-09-22/15-011217.png  <-  screenshot-20260922-011217.png
-organized/screenshots/day-07-2026-09-22/16-011905.png  <-  screenshot-20260922-011905.png
-organized/screenshots/day-07-2026-09-22/17-132041.png  <-  screenshot-20260922-132041.png
-organized/screenshots/day-07-2026-09-22/18-132135.png  <-  screenshot-20260922-132135.png
-organized/screenshots/day-07-2026-09-22/19-132509.png  <-  screenshot-20260922-132509.png
-organized/screenshots/day-07-2026-09-22/20-133000.png  <-  screenshot-20260922-133000.png
-organized/screenshots/day-07-2026-09-22/21-133829.png  <-  screenshot-20260922-133829.png
-organized/screenshots/day-07-2026-09-22/22-134540.png  <-  screenshot-20260922-134540.png
+.gitignore
+CONTRIBUTING.md
+INSTALL.md
+LICENSE
+README.md
+assets/1.png
+assets/1740674430-937653-2293x1034.jpg
+assets/2.png
+assets/3.png
+assets/desktop_check.png
+assets/desktop_check2.png
+assets/desktop_check3.png
+assets/glyphos-logo.svg
+assets/nothing-4m.jpg
+assets/nothing-logo.jpg
+assets/wallpaper.jpg
+config/eww/eww.scss
+config/eww/eww.yuck
+config/eww/scripts/toggle-wifi.sh
+config/hypr/assets/lock/album.png
+config/hypr/assets/lock/album.svg
+config/hypr/assets/lock/logo.png
+config/hypr/assets/lock/logo.svg
+config/hypr/assets/lock/profile-0.png
+config/hypr/assets/lock/profile-1.png
+config/hypr/assets/lock/profile-2.png
+config/hypr/assets/lock/user.png
+config/hypr/assets/lock/user.svg
+config/hypr/assets/lock/weather.png
+config/hypr/assets/lock/weather.svg
+config/hypr/assets/no-art.png
+config/hypr/hypridle.conf
+config/hypr/hyprland.conf
+config/hypr/hyprlock.conf
+config/hypr/hyprpaper.conf
+config/hypr/scripts/get-album-art.sh
+config/hypr/scripts/get-weather.sh
+config/hypr/scripts/lock-controls.py
+config/hypr/scripts/lock-data.py
+config/hypr/scripts/lock-refresh.sh
+config/hypr/scripts/lock-ui.py
+config/hypr/scripts/np-progress.sh
+config/hypr/scripts/set-wallpaper.sh
+config/mako/config
+config/waybar/config
+config/waybar/style.css
+local/share/nothingos/app-launch.sh
+local/share/nothingos/app-search.sh
+screenshots/day-01-2026-09-04/01-010526.png
+screenshots/day-01-2026-09-04/02-013137.png
+screenshots/day-01-2026-09-04/03-014426.png
+screenshots/day-02-2026-09-06/01-015842.png
+screenshots/day-02-2026-09-06/02-020758.png
+screenshots/day-02-2026-09-06/03-021345.png
+screenshots/day-02-2026-09-06/04-021610.png
+screenshots/day-02-2026-09-06/05-022919.png
+screenshots/day-02-2026-09-06/06-022926.png
+screenshots/day-02-2026-09-06/07-023001.png
+screenshots/day-02-2026-09-06/08-030146.png
+screenshots/day-03-2026-09-08/01-005906.png
+screenshots/day-03-2026-09-08/02-010602.png
+screenshots/day-03-2026-09-08/03-010619.png
+screenshots/day-03-2026-09-08/04-011106.png
+screenshots/day-03-2026-09-08/05-011502.png
+screenshots/day-03-2026-09-08/06-011804.png
+screenshots/day-03-2026-09-08/07-011924.png
+screenshots/day-03-2026-09-08/08-012144.png
+screenshots/day-03-2026-09-08/09-012232.png
+screenshots/day-03-2026-09-08/10-012437.png
+screenshots/day-03-2026-09-08/11-012448.png
+screenshots/day-03-2026-09-08/12-012455.png
+screenshots/day-03-2026-09-08/13-012500.png
+screenshots/day-03-2026-09-08/14-012507.png
+screenshots/day-03-2026-09-08/15-012512.png
+screenshots/day-03-2026-09-08/16-012517.png
+screenshots/day-03-2026-09-08/17-012700.png
+screenshots/day-03-2026-09-08/18-012816.png
+screenshots/day-03-2026-09-08/19-223041.png
+screenshots/day-03-2026-09-08/20-223049.png
+screenshots/day-04-2026-09-09/01-231715.png
+screenshots/day-05-2026-09-20/01-222428.png
+screenshots/day-05-2026-09-20/02-223415.png
+screenshots/day-05-2026-09-20/03-225015.png
+screenshots/day-05-2026-09-20/04-225356.png
+screenshots/day-05-2026-09-20/05-225742.png
+screenshots/day-05-2026-09-20/06-225747.png
+screenshots/day-05-2026-09-20/07-230324.png
+screenshots/day-05-2026-09-20/08-231543.png
+screenshots/day-05-2026-09-20/09-231545.png
+screenshots/day-05-2026-09-20/10-231728.png
+screenshots/day-05-2026-09-20/11-231801.png
+screenshots/day-05-2026-09-20/12-234001.png
+screenshots/day-05-2026-09-20/13-234510.png
+screenshots/day-05-2026-09-20/14-235309.png
+screenshots/day-06-2026-09-21/01-000239.png
+screenshots/day-06-2026-09-21/02-000729.png
+screenshots/day-06-2026-09-21/03-001440.png
+screenshots/day-06-2026-09-21/04-001806.png
+screenshots/day-06-2026-09-21/05-002208.png
+screenshots/day-06-2026-09-21/06-002216.png
+screenshots/day-06-2026-09-21/07-002340.png
+screenshots/day-06-2026-09-21/08-002427.png
+screenshots/day-06-2026-09-21/09-003411.png
+screenshots/day-06-2026-09-21/10-003827.png
+screenshots/day-06-2026-09-21/11-004832.png
+screenshots/day-06-2026-09-21/12-010248.png
+screenshots/day-06-2026-09-21/13-012430.png
+screenshots/day-06-2026-09-21/14-013245.png
+screenshots/day-06-2026-09-21/15-231821.png
+screenshots/day-06-2026-09-21/16-231824.png
+screenshots/day-06-2026-09-21/17-231829.png
+screenshots/day-06-2026-09-21/18-235913.png
+screenshots/day-07-2026-09-22/01-000533.png
+screenshots/day-07-2026-09-22/02-000631.png
+screenshots/day-07-2026-09-22/03-001125.png
+screenshots/day-07-2026-09-22/04-002016.png
+screenshots/day-07-2026-09-22/05-002050.png
+screenshots/day-07-2026-09-22/06-002910.png
+screenshots/day-07-2026-09-22/07-005023.png
+screenshots/day-07-2026-09-22/08-005034.png
+screenshots/day-07-2026-09-22/09-005046.png
+screenshots/day-07-2026-09-22/10-005909.png
+screenshots/day-07-2026-09-22/11-010624.png
+screenshots/day-07-2026-09-22/12-010627.png
+screenshots/day-07-2026-09-22/13-010631.png
+screenshots/day-07-2026-09-22/14-010828.png
+screenshots/day-07-2026-09-22/15-011217.png
+screenshots/day-07-2026-09-22/16-011905.png
+screenshots/day-07-2026-09-22/17-132041.png
+screenshots/day-07-2026-09-22/18-132135.png
+screenshots/day-07-2026-09-22/19-132509.png
+screenshots/day-07-2026-09-22/20-133000.png
+screenshots/day-07-2026-09-22/21-133829.png
+screenshots/day-07-2026-09-22/22-134540.png

@@ -1,0 +1,25 @@
+# Runtime and temporary output
+/tmp/
+*.log
+__pycache__/
+*.py[cod]
+*.swp
+*.swo
+*~
+# Personal credentials and local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+credentials
+credentials.*
+secrets/
+*.token
+*.secret
+# User task data
+local/share/nothingos/tasks.txt

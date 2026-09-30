@@ -46,7 +46,7 @@ to a working desktop.
 > installer script is planned for the first tagged release.
 
 ```bash
-git clone https://github.com/<your-username>/glyphos.git
+git clone https://github.com/09akarshit-ops/glyphos.git
 cd glyphos
 ```
 
@@ -81,4 +81,4 @@ MIT — see [`LICENSE`](./LICENSE).
 
 ---
 
-<p align="center"><sub>Built by <a href="https://github.com/<your-username>">Akarshit</a> — documented as a public build log.</sub></p>
+<p align="center"><sub>Built by <a href="https://github.com/09akarshit-ops">Akarshit</a> — documented as a public build log.</sub></p>

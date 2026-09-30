@@ -7,10 +7,10 @@
 
     (box :orientation "h" :space-evenly false :spacing 20
       (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "eww open --toggle launcher-catcher &; eww open --toggle app-launcher &" "⏻")
+        (button :class "appicon" :onclick "eww open --toggle app-launcher" "⏻")
         (label :class "app-label" :text "Nothing OS"))
       (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "brave &" "🌐")
+        (button :class "appicon" :onclick "brave &" (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 32 :image-height 32))
         (label :class "app-label" :text "Browser"))
       (box :orientation "v" :space-evenly false :spacing 4
         (button :class "appicon" :onclick "dolphin &" "📁")
@@ -30,23 +30,23 @@
   :monitor 0
   :geometry (geometry :x "0px" :y "10px" :width "560px" :height "56px" :anchor "bottom center")
   :stacking "bottom"
-  (box :class "dock" :orientation "h" :space-evenly true :spacing 25
-    (button :class "dock-icon" :onclick "eww open --toggle launcher-catcher &; eww open --toggle app-launcher &"
-      "▦")
+  (box :class "dock" :orientation "h" :space-evenly false :spacing 20
+    (button :class "dock-icon" :onclick "eww open --toggle app-launcher"
+      (label :class "dock-glyph" :text "▦"))
     (button :class "dock-icon" :onclick "kitty &"
-      "💻")
+      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/utilities-terminal.svg" :image-width 34 :image-height 34))
     (button :class "dock-icon" :onclick "dolphin &"
-      "📁")
+      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/system-file-manager.svg" :image-width 34 :image-height 34))
     (button :class "dock-icon" :onclick "brave &"
-      "🌐")
+      (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 34 :image-height 34))
     (button :class "dock-icon" :onclick "spotify &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/spotify.svg" :image-width 32 :image-height 32))
+      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/spotify.svg" :image-width 34 :image-height 34))
     (button :class "dock-icon" :onclick "firefox https://youtube.com &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/youtube.svg" :image-width 32 :image-height 32))
+      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/youtube.svg" :image-width 34 :image-height 34))
     (button :class "dock-icon" :onclick "claude-desktop &"
-      (image :path "/usr/share/icons/hicolor/256x256/apps/claude-desktop.png" :image-width 32 :image-height 32))
+      (image :path "/usr/share/icons/hicolor/256x256/apps/claude-desktop.png" :image-width 34 :image-height 34))
     (button :class "dock-icon" :onclick "vlc &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/vlc.svg" :image-width 32 :image-height 32))))
+      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/vlc.svg" :image-width 34 :image-height 34))))
 
 (defwindow control-center
   :monitor 0
@@ -55,9 +55,22 @@
   (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 14
     (label :class "cc-title" :text "CONTROL CENTER" :halign "start")
     (box :orientation "h" :space-evenly true :spacing 10
-      (button :class "cc-tile" :onclick "eww open --toggle wifi-menu &" "WiFi")
-      (button :class "cc-tile" :onclick "eww open --toggle bluetooth-menu &" "Bluetooth")
-      (button :class "cc-tile" :onclick "eww update glyph-on=true" "Glyph"))
+      (button :class "cc-tile" :onclick {cc-wifi-open ? "eww update cc-wifi-open=false" : "eww update cc-wifi-open=true"} "WiFi")
+      (button :class "cc-tile" :onclick {cc-bt-open ? "eww update cc-bt-open=false" : "eww update cc-bt-open=true"} "Bluetooth")
+      (button :class "cc-tile" :onclick {cc-batt-open ? "eww update cc-batt-open=false" : "eww update cc-batt-open=true"} "Battery"))
+    (revealer :reveal cc-wifi-open :transition "slidedown"
+      (box :class "cc-expand" :orientation "v" :spacing 6
+        (label :class "cc-label" :text wifi-list :halign "start" :wrap true)
+        (button :class "cc-tile" :onclick "~/.config/eww/scripts/toggle-wifi.sh" "Toggle WiFi")))
+    (revealer :reveal cc-bt-open :transition "slidedown"
+      (box :class "cc-expand" :orientation "v" :spacing 6
+        (button :class "cc-tile" :onclick "bluetoothctl power on" "Turn On")
+        (button :class "cc-tile" :onclick "bluetoothctl power off" "Turn Off")
+        (label :class "cc-label" :text bt-list :halign "start" :wrap true)))
+    (revealer :reveal cc-batt-open :transition "slidedown"
+      (box :class "cc-expand" :orientation "v" :spacing 6
+        (button :class "cc-tile" :onclick "powerprofilesctl set power-saver 2>/dev/null" "Battery Saver")
+        (button :class "cc-tile" :onclick "powerprofilesctl set balanced 2>/dev/null" "Balanced")))
     (label :class "cc-label" :text "3 Priority Notifications" :halign "start")
     (box :orientation "v" :space-evenly false :spacing 6
       (label :class "cc-label" :text "Brightness" :halign "start")
@@ -211,19 +224,12 @@
   :stacking "bottom"
   (box :class "np-widget" :orientation "v" :space-evenly false :spacing 10
     (label :class "np-heading" :text "NOW PLAYING" :halign "start")
-    (box :orientation "h" :space-evenly false :spacing 14
+    (box :orientation "h" :space-evenly false :spacing 20
       (button :class "np-ctrl" :onclick "playerctl previous" "⏮")
       (button :class "np-ctrl-main" :onclick "playerctl play-pause" {np-status == "Playing" ? "⏸" : "⏵"})
       (button :class "np-ctrl" :onclick "playerctl next" "⏭"))
     (label :class "np-track" :text np-title :halign "start")
     (label :class "np-artist" :text np-artist :halign "start")))
-
-(defwindow launcher-catcher
-  :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%" :anchor "center")
-  :stacking "overlay"
-  (eventbox :onclick "eww close launcher-catcher; eww close app-launcher"
-    (box :class "catcher" :orientation "v")))
 
 (defwindow app-launcher
   :monitor 0
@@ -267,7 +273,7 @@
               (label :class "tile-label" :text "Files")))
           (button :class "tile" :onclick "brave ; eww close app-launcher"
             (box :orientation "v" :spacing 4
-              (label :class "tile-icon" :text "🌐")
+              (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 32 :image-height 32)
               (label :class "tile-label" :text "Internet"))))))
     (box :class "launcher-search" :orientation "h" :space-evenly false :spacing 8
       (label :text "🔍")
@@ -349,6 +355,9 @@
 
 (defvar search-preview "")
 (defvar more-open false)
+(defvar cc-wifi-open false)
+(defvar cc-bt-open false)
+(defvar cc-batt-open false)
 (defvar dm-audio-open false)
 (defvar dm-bt-open false)
 (defvar dm-usb-open false)
