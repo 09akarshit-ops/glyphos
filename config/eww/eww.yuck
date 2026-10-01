@@ -1,90 +1,160 @@
+;; GlyphOS reference desktop: 1408 x 768; fractional anchors adapt to other displays.
+(defwidget circle-action [icon command]
+  (button :class "circle-action" :onclick command :tooltip icon
+    (image :path "assets/${icon}.svg" :image-width 38 :image-height 38)))
+(defwidget shortcut [icon title command]
+  (box :orientation "v" :space-evenly false :spacing 7
+    (button :class "desktop-app" :onclick command :halign "center" :tooltip title
+      (image :path "assets/${icon}.svg" :image-width 40 :image-height 40))
+    (label :class "desktop-app-label" :text title)))
+(defpoll bar-time :interval "10s" "date '+%I:%M %p' | sed 's/^0//'")
+(defpoll bar-date :interval "30s" "date '+%a %d %b' | tr '[:lower:]' '[:upper:]'")
+(defpoll bar-power :interval "3s" :initial '{"capacity":"—","plugged":false,"status":"Unknown"}' "~/.config/eww/scripts/desktop-status.py power")
+(defpoll bar-connectivity :interval "5s" :initial '{"wifi":false,"bluetooth":false}' "~/.config/eww/scripts/desktop-status.py connectivity")
+(defpoll media-progress :interval "2s" :initial "0" "~/.config/eww/scripts/media.py")
+;; The bar never takes keyboard focus; actions target explicit client addresses.
+(deflisten taskbar-windows :initial "[]" "~/.config/eww/scripts/taskbar.py")
+(defwidget taskbar []
+  (scroll :hscroll true :vscroll false :hexpand true
+    (box :class "taskbar" :space-evenly false :spacing 4
+      (for window in taskbar-windows
+        (button :class {window.style} :tooltip {window.tooltip}
+          :onclick "~/.config/eww/scripts/taskbar.py click ${window.address}"
+          (image :path {window.icon} :image-width 22 :image-height 22))))))
+(defwindow top-bar
+  :namespace "glyphos-top-bar"
+  :monitor 0
+  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "36px" :anchor "top center")
+  :stacking "fg"
+  :exclusive true
+  :focusable false
+  (box :class "desktop-bar" :tooltip {modal-active ? "" : ""} :space-evenly true :spacing 0
+    (box :space-evenly false :spacing 14 :hexpand true
+      (label :text bar-time)
+      (label :text bar-date)
+      (taskbar))
+    (button :class "bar-brand" :halign "center" :tooltip "GlyphOS · Open app launcher" :onclick "eww open --toggle app-launcher"
+      (box :space-evenly false :spacing 6
+        (image :path "assets/glyphos-dark.svg" :image-width 27 :image-height 27)
+        (label :markup "<span font_family='Ndot 55'>GLYPHOS</span>")))
+    (box :space-evenly false :spacing 14 :halign "end"
+      (box :class "bar-status-pill" :space-evenly false :spacing 10 :valign "center"
+      (button :class {bar-connectivity.bluetooth ? "bar-button" : "bar-button indicator-off"} :onclick "eww open --toggle bluetooth-menu" :tooltip {bar-connectivity.bluetooth ? "Bluetooth on" : "Bluetooth off"}
+        (image :path "assets/bluetooth-dark.svg" :image-width 22 :image-height 22))
+      (button :class {bar-connectivity.wifi ? "bar-button" : "bar-button indicator-off"} :onclick "eww open --toggle wifi-menu" :tooltip {bar-connectivity.wifi ? "Wi-Fi on" : "Wi-Fi off"}
+        (image :path "assets/wifi-dark.svg" :image-width 26 :image-height 26))
+      (button :class {bar-power.plugged ? "bar-battery-pill charging" : "bar-battery-pill"} :onclick "eww open --toggle power-display"
+        :tooltip {bar-power.plugged ? "Plugged in · ${bar-power.status}" : "Battery · ${bar-power.status}"}
+        (box :space-evenly false :spacing 6
+          (image :path {bar-power.plugged ? "assets/battery-charging-dark.svg" : "assets/battery-dark.svg"} :image-width 30 :image-height 24)
+          (label :text {bar-power.capacity == "—" ? "AC" : "${bar-power.capacity}%"}))))
+      (button :class "bar-profile" :onclick "eww open --toggle control-center" :tooltip "Control center" "⌁"))))
+(defwindow dot-field
+  :monitor 0
+  :geometry (geometry :x "1%" :y "7%" :width "530px" :height "235px" :anchor "top right")
+  :stacking "bottom"
+  :focusable false
+  (image :visible cc-glyph :path "assets/dot-field.svg" :image-width 530 :image-height 235))
 (defvar settings-tab "Display")
 (defwindow home
   :monitor 0
-  :geometry (geometry :x "40px" :y "40px" :width "900px" :height "420px" :anchor "top left")
+  :geometry (geometry :x "0px" :y "41.5%" :width "952px" :height "102px" :anchor "top center")
   :stacking "bottom"
-  (box :class "home-bg" :orientation "v" :space-evenly false :spacing 14
-
-    (box :orientation "h" :space-evenly false :spacing 20
-      (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "eww open --toggle app-launcher" "⏻")
-        (label :class "app-label" :text "Nothing OS"))
-      (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "brave &" (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 32 :image-height 32))
-        (label :class "app-label" :text "Browser"))
-      (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "dolphin &" "📁")
-        (label :class "app-label" :text "Files"))
-      (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "eww open settings-app &" "⚙")
-        (label :class "app-label" :text "Settings"))
-      (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "xdg-open https://mail.google.com &" "✉")
-        (label :class "app-label" :text "Mail"))
-      (box :orientation "v" :space-evenly false :spacing 4
-        (button :class "appicon" :onclick "kitty &" "♪")
-        (label :class "app-label" :text "Music")))
-))
+  :focusable false
+  (box :class "desktop-shortcuts" :space-evenly true :spacing 0
+    (shortcut :icon "glyphos" :title "GlyphOS" :command "eww open --toggle app-launcher")
+    (shortcut :icon "browser" :title "Browser" :command "brave &")
+    (shortcut :icon "files" :title "files" :command "dolphin &")
+    (shortcut :icon "settings" :title "settings" :command "eww open settings-window")
+    (shortcut :icon "mail" :title "mail" :command "xdg-open https://mail.google.com &")
+    (shortcut :icon "music" :title "music" :command "spotify &")
+    (shortcut :icon "notes" :title "notes" :command "eww open --toggle calendar-tasks")
+    (shortcut :icon "photos" :title "Photos" :command "dolphin ~/Pictures &")))
 
 (defwindow dock
+  :namespace "glyphos-dock"
   :monitor 0
-  :geometry (geometry :x "0px" :y "10px" :width "560px" :height "56px" :anchor "bottom center")
+  :geometry (geometry :x "0px" :y "9px" :width "410px" :height "80px" :anchor "bottom center")
   :stacking "bottom"
-  (box :class "dock" :orientation "h" :space-evenly false :spacing 20
-    (button :class "dock-icon" :onclick "eww open --toggle app-launcher"
-      (label :class "dock-glyph" :text "▦"))
-    (button :class "dock-icon" :onclick "kitty &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/utilities-terminal.svg" :image-width 34 :image-height 34))
-    (button :class "dock-icon" :onclick "dolphin &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/system-file-manager.svg" :image-width 34 :image-height 34))
-    (button :class "dock-icon" :onclick "brave &"
-      (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 34 :image-height 34))
-    (button :class "dock-icon" :onclick "spotify &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/spotify.svg" :image-width 34 :image-height 34))
-    (button :class "dock-icon" :onclick "firefox https://youtube.com &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/youtube.svg" :image-width 34 :image-height 34))
-    (button :class "dock-icon" :onclick "claude-desktop &"
-      (image :path "/usr/share/icons/hicolor/256x256/apps/claude-desktop.png" :image-width 34 :image-height 34))
-    (button :class "dock-icon" :onclick "vlc &"
-      (image :path "/usr/share/icons/Papirus-Light/64x64/apps/vlc.svg" :image-width 34 :image-height 34))))
+  :focusable false
+  (box :class "glass-dock" :space-evenly false :spacing 17
+    (circle-action :icon "home" :command "eww open --toggle app-launcher")
+    (circle-action :icon "files" :command "dolphin &")
+    (circle-action :icon "chat" :command "brave --app=https://web.whatsapp.com &")
+    (circle-action :icon "ai" :command "brave --app=https://gemini.google.com &")
+    (circle-action :icon "browser" :command "brave &")))
 
+(defpoll cc-state :interval "3s" :initial '{"wifi":false,"ssid":"Wi-Fi","bluetooth":false,"device":"Not connected","brightness":0,"volume":0,"priority":0,"dnd":false}' "~/.config/eww/scripts/control-center.py status")
+(defvar cc-glyph true)
+(defvar cc-edit false)
+(defpoll cc-nightlight :interval "1s" :initial "false" "~/.config/eww/scripts/toggle-nightlight.sh status")
+(defpoll cc-brightness :interval "1s" :initial "50" "~/.config/eww/scripts/control-center.py brightness-value")
+(defpoll cc-volume :interval "1s" :initial "50" "~/.config/eww/scripts/control-center.py volume-value")
+(defwidget cc-quick [icon title enabled command]
+  (box :orientation "v" :space-evenly false :spacing 7
+    (button :class {enabled ? "cc-round" : "cc-round unavailable"} :active enabled :tooltip {enabled ? title : "${title} hardware unavailable"} :onclick command :halign "center"
+      (image :path "assets/cc-${icon}.svg" :image-width 30 :image-height 30))
+    (label :class "cc-caption" :text title)))
+(defwidget cc-slider [title icon value action]
+  (box :orientation "v" :space-evenly false :spacing 6
+    (label :class "cc-slider-label" :text title :halign "start")
+    (overlay
+      (scale :class "cc-slider" :min 0 :max 100 :value value :timeout "2s" :onchange "eww update cc-${action}={}; ~/.config/eww/scripts/control-center.py ${action} {}")
+      (box :class "cc-slider-overlay" :space-evenly false
+        (image :path "assets/cc-${icon}-dark.svg" :image-width 24 :image-height 24 :halign "start")
+        (label :text "${round(value, 0)}%" :halign "end" :hexpand true)))))
 (defwindow control-center
+  :namespace "control-center"
   :monitor 0
-  :geometry (geometry :x "20px" :y "40px" :width "320px" :height "380px" :anchor "top right")
+  :geometry (geometry :x "10px" :y "10px" :width "410px" :height "450px" :anchor "top right")
   :stacking "overlay"
-  (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 14
-    (label :class "cc-title" :text "CONTROL CENTER" :halign "start")
-    (box :orientation "h" :space-evenly true :spacing 10
-      (button :class "cc-tile" :onclick {cc-wifi-open ? "eww update cc-wifi-open=false" : "eww update cc-wifi-open=true"} "WiFi")
-      (button :class "cc-tile" :onclick {cc-bt-open ? "eww update cc-bt-open=false" : "eww update cc-bt-open=true"} "Bluetooth")
-      (button :class "cc-tile" :onclick {cc-batt-open ? "eww update cc-batt-open=false" : "eww update cc-batt-open=true"} "Battery"))
-    (revealer :reveal cc-wifi-open :transition "slidedown"
-      (box :class "cc-expand" :orientation "v" :spacing 6
-        (label :class "cc-label" :text wifi-list :halign "start" :wrap true)
-        (button :class "cc-tile" :onclick "~/.config/eww/scripts/toggle-wifi.sh" "Toggle WiFi")))
-    (revealer :reveal cc-bt-open :transition "slidedown"
-      (box :class "cc-expand" :orientation "v" :spacing 6
-        (button :class "cc-tile" :onclick "bluetoothctl power on" "Turn On")
-        (button :class "cc-tile" :onclick "bluetoothctl power off" "Turn Off")
-        (label :class "cc-label" :text bt-list :halign "start" :wrap true)))
-    (revealer :reveal cc-batt-open :transition "slidedown"
-      (box :class "cc-expand" :orientation "v" :spacing 6
-        (button :class "cc-tile" :onclick "powerprofilesctl set power-saver 2>/dev/null" "Battery Saver")
-        (button :class "cc-tile" :onclick "powerprofilesctl set balanced 2>/dev/null" "Balanced")))
-    (label :class "cc-label" :text "3 Priority Notifications" :halign "start")
-    (box :orientation "v" :space-evenly false :spacing 6
-      (label :class "cc-label" :text "Brightness" :halign "start")
-      (scale :min 0 :max 100 :value 70 :onchange "brightnessctl set {}\%"))
-    (box :orientation "v" :space-evenly false :spacing 6
-      (label :class "cc-label" :text "Volume" :halign "start")
-      (scale :min 0 :max 100 :value 65 :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"))
-    (box :orientation "h" :space-evenly true :spacing 10
-      (button :class "cc-tile" :onclick "eww close control-center" "Exit"))))
+  :exclusive false
+  :focusable false
+  (box :class "control-center-card" :orientation "v" :space-evenly false :spacing 12
+    (box :space-evenly false
+      (label :class "control-center-title" :markup "<span font_family='Ndot 55'>CONTROL CENTER</span>" :halign "start" :hexpand true)
+      (button :class "cc-close" :tooltip "Close (Escape)" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py close" "×"))
+    (box :space-evenly true :spacing 10
+      (button :class {cc-state.wifi ? "cc-connect" : "cc-connect disabled"} :timeout "5s" :onclick "~/.config/eww/scripts/control-center.py wifi" :tooltip {cc-state.ssid}
+        (box :orientation "v" :space-evenly false :spacing 9 :valign "center"
+          (image :path "assets/wifi.svg" :image-width 32 :image-height 32)
+          (label :text {cc-state.wifi ? cc-state.ssid : "Wi-Fi off"} :limit-width 20)))
+      (button :class {cc-state.bluetooth ? "cc-connect" : "cc-connect disabled"} :timeout "5s" :onclick "~/.config/eww/scripts/control-center.py bluetooth" :tooltip {cc-state.device}
+        (box :orientation "v" :space-evenly false :spacing 6 :valign "center"
+          (image :path "assets/bluetooth.svg" :image-width 30 :image-height 30)
+          (label :text {cc-state.bluetooth ? cc-state.device : "Bluetooth off"} :limit-width 20)
+          (label :class "cc-secondary" :visible {cc-state.device != "Not connected"} :text "Connected"))))
+    (cc-slider :title "Brightness" :icon "sun" :value cc-brightness :action "brightness")
+    (cc-slider :title "Volume" :icon "speaker" :value cc-volume :action "volume")
+    (button :class "cc-priority" :onclick "makoctl restore" :tooltip "Restore latest notification"
+      (box :space-evenly false :spacing 10
+        (image :path "assets/cc-bell.svg" :image-width 23 :image-height 23)
+        (label :text "${cc-state.priority} Priority Notifications" :halign "start")))
+    (box :class "cc-actions" :space-evenly true :spacing 0
+      (box :orientation "v" :space-evenly false :spacing 7
+        (button :class {cc-nightlight ? "cc-round cc-nightlight active" : "cc-round cc-nightlight"} :timeout "5s" :onclick "~/.config/eww/scripts/toggle-nightlight.sh" :tooltip {cc-nightlight ? "Night Light on · Warm 4000 K" : "Night Light off"} :halign "center"
+          (image :path {cc-nightlight ? "assets/cc-nightlight-active.svg" : "assets/cc-nightlight.svg"} :image-width 30 :image-height 30))
+        (label :class "cc-caption" :text "Night Light"))
+      (cc-quick :icon "capture" :title "Screenshot" :enabled true :command "~/.config/eww/scripts/control-center.py screenshot")
+      (cc-quick :icon "mute" :title "Mute" :enabled true :command "~/.config/eww/scripts/control-center.py mute")
+      (cc-quick :icon "lock" :title "Lock" :enabled true :command "~/.config/eww/scripts/control-center.py lock")
+      (box :orientation "v" :space-evenly false :spacing 7
+        (button :class {cc-state.dnd ? "cc-round active" : "cc-round"} :onclick "~/.config/eww/scripts/control-center.py dnd" :tooltip "Do Not Disturb" :halign "center"
+          (image :path "assets/cc-dnd.svg" :image-width 30 :image-height 30))
+        (label :class "cc-caption" :text "DND")))
+    (revealer :reveal cc-edit :transition "slidedown"
+      (label :class "cc-edit-note" :wrap true :text "Desktop shortcuts: Night Light, Screenshot, Mute, Lock and DND. Brightness and volume sliders apply immediately."))
+    (box :class "cc-footer" :space-evenly false :spacing 12 :halign "end" :vexpand true :valign "end"
+      (button :class "cc-footer-button" :tooltip "Settings" :onclick "~/.config/eww/scripts/modal.py close; eww open settings-window"
+        (image :path "assets/settings.svg" :image-width 28 :image-height 28))
+      (button :class "cc-footer-button" :tooltip "Edit quick settings" :onclick "eww update cc-edit=${!cc-edit}"
+        (image :path "assets/cc-edit.svg" :image-width 28 :image-height 28)))))
 
 (defwindow glyph-hub
   :monitor 0
   :geometry (geometry :x "20px" :y "40px" :width "300px" :height "260px" :anchor "top right")
   :stacking "overlay"
+  :focusable false
   (box :class "gh-panel" :orientation "v" :space-evenly false :spacing 12
     (label :class "gh-title" :text "GLYPH HUB" :halign "start")
     (box :class "gh-card" :orientation "h" :space-evenly false :spacing 12
@@ -104,14 +174,37 @@
         (label :class "gh-msg" :text "2 messages" :halign "start")))
     (button :class "gh-close" :onclick "eww close glyph-hub" "Close")))
 
-(defwindow settings-app
+(defwidget traffic-lights [window-name]
+  (box :class "traffic-lights" :space-evenly false :spacing 8 :valign "center"
+    (button :class "traffic-light red" :tooltip "Close" :timeout "5s" :onclick "~/.config/eww/scripts/window-management.py panel close ${window-name}" :valign "center"
+        (image :path "assets/traffic-red.svg" :image-width 20 :image-height 20))
+    (button :class "traffic-light yellow" :tooltip "Minimize to taskbar" :timeout "5s" :onclick "~/.config/eww/scripts/window-management.py panel minimize ${window-name}" :valign "center"
+        (image :path "assets/traffic-yellow.svg" :image-width 20 :image-height 20))
+    (button :class "traffic-light green" :tooltip "Maximize / Restore" :timeout "5s" :onclick "~/.config/eww/scripts/window-management.py panel maximize ${window-name}" :valign "center"
+        (image :path "assets/traffic-green.svg" :image-width 20 :image-height 20))))
+(deflisten active-client :initial '{"address":"","title":"","visible":false}' "~/.config/eww/scripts/window-management.py watch")
+(defwindow app-titlebar
+  :namespace "glyphos-app-titlebar"
   :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "620px" :height "480px" :anchor "center")
-  :stacking "overlay"
+  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "36px" :anchor "top center")
+  :stacking "fg"
+  :exclusive true
+  :focusable false
+  (box :class "native-titlebar" :visible {active-client.visible} :space-evenly false :spacing 14
+    (label :text {active-client.title} :limit-width 100 :hexpand true :halign "start")
+    (box :class "traffic-lights" :halign "end" :space-evenly false :spacing 8 :valign "center"
+      (button :class "traffic-light red" :tooltip "Close app" :timeout "5s" :onclick "~/.config/eww/scripts/window-management.py close ${active-client.address}" :valign "center"
+        (image :path "assets/traffic-red.svg" :image-width 20 :image-height 20))
+      (button :class "traffic-light yellow" :tooltip "Minimize app" :timeout "5s" :onclick "~/.config/eww/scripts/window-management.py minimize ${active-client.address}" :valign "center"
+        (image :path "assets/traffic-yellow.svg" :image-width 20 :image-height 20))
+      (button :class "traffic-light green" :tooltip "Maximize / Restore app" :timeout "5s" :onclick "~/.config/eww/scripts/window-management.py maximize ${active-client.address}" :valign "center"
+        (image :path "assets/traffic-green.svg" :image-width 20 :image-height 20)))))
+
+(defwidget glyphos-settings-panel [window-name]
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0 :vexpand true :hexpand true
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Settings" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close settings-app" "✕"))
+      (traffic-lights :window-name "${window-name}"))
     (box :class "settings-cards" :orientation "v" :space-evenly false :spacing 8 :vexpand true
 
       (eventbox :onclick "eww update settings-tab=System"
@@ -156,7 +249,7 @@
 
       (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "System"}
         (label :class "settings-heading" :text "System" :halign "start")
-        (label :class "settings-label" :text "About: Nothing OS Desktop" :halign "start")
+        (label :class "settings-label" :text "About: GlyphOS Desktop" :halign "start")
         (label :class "settings-label" :text "Status: Active" :halign "start"))
       (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Display"}
         (label :class "settings-heading" :text "Display" :halign "start")
@@ -171,16 +264,32 @@
         (label :class "settings-label" :text "Honda_5G - Connected" :halign "start"))
       (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Appearance"}
         (label :class "settings-heading" :text "Appearance" :halign "start")
-        (label :class "settings-label" :text "Theme: Nothing OS Light" :halign "start")))))
+        (label :class "settings-label" :text "Theme: GlyphOS Light" :halign "start")))))
+
+(defwindow settings-window
+  :namespace "glyphos-settings"
+  :monitor 0
+  :geometry (geometry :x "0px" :y "0px" :width "620px" :height "480px" :anchor "center")
+  :stacking "overlay"
+  :focusable false
+  (glyphos-settings-panel :window-name "settings-window"))
+
+(defwindow settings-app
+  :monitor 0
+  :geometry (geometry :x "0px" :y "0px" :width "620px" :height "480px" :anchor "center")
+  :stacking "overlay"
+  :focusable false
+  (glyphos-settings-panel :window-name "settings-app"))
 
 (defwindow settings-app-max
   :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%" :anchor "center")
+  :geometry (geometry :x "0px" :y "0px" :y "-72px" :width "100%" :height "100%" :anchor "top left")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0 :vexpand true :hexpand true
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Settings | System / General" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close settings-app-max; eww open settings-app" "⤡"))
+      (traffic-lights :window-name "settings-app-max"))
     (box :orientation "h" :space-evenly false :spacing 0 :vexpand true
       (box :class "settings-sidebar" :orientation "v" :space-evenly false :spacing 8
         (eventbox :onclick "eww update settings-tab=System"
@@ -196,7 +305,7 @@
       (box :class "settings-content" :orientation "v" :space-evenly false :spacing 10 :vexpand true :hexpand true
         (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "System"}
           (label :class "settings-heading" :text "System" :halign "start")
-          (label :class "settings-label" :text "About Phone: Nothing OS Desktop" :halign "start")
+          (label :class "settings-label" :text "About Phone: GlyphOS Desktop" :halign "start")
           (label :class "settings-label" :text "Status: Active" :halign "start"))
         (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Display"}
           (label :class "settings-heading" :text "Display" :halign "start")
@@ -212,82 +321,103 @@
           (label :class "settings-label" :text "Honda_5G - Connected" :halign "start"))
         (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Appearance"}
           (label :class "settings-heading" :text "Appearance" :halign "start")
-          (label :class "settings-label" :text "Theme: Nothing OS Light" :halign "start"))))))
+          (label :class "settings-label" :text "Theme: GlyphOS Light" :halign "start"))))))
 
 (defpoll np-artist :interval "2s" "playerctl metadata artist 2>/dev/null || echo 'No Artist'")
 (defpoll np-title :interval "2s" "playerctl metadata title 2>/dev/null || echo 'Nothing Playing'")
 (defpoll np-status :interval "1s" "playerctl status 2>/dev/null || echo 'Stopped'")
 
 (defwindow nowplaying
+  :namespace "glyphos-nowplaying"
   :monitor 0
-  :geometry (geometry :x "40px" :y "500px" :width "400px" :height "180px" :anchor "top left")
+  :geometry (geometry :x "0px" :y "105px" :width "380px" :height "180px" :anchor "bottom center")
   :stacking "bottom"
-  (box :class "np-widget" :orientation "v" :space-evenly false :spacing 10
-    (label :class "np-heading" :text "NOW PLAYING" :halign "start")
-    (box :orientation "h" :space-evenly false :spacing 20
-      (button :class "np-ctrl" :onclick "playerctl previous" "⏮")
-      (button :class "np-ctrl-main" :onclick "playerctl play-pause" {np-status == "Playing" ? "⏸" : "⏵"})
-      (button :class "np-ctrl" :onclick "playerctl next" "⏭"))
-    (label :class "np-track" :text np-title :halign "start")
-    (label :class "np-artist" :text np-artist :halign "start")))
+  :focusable false
+  (box :class "music-card dock-media" :orientation "v" :space-evenly false :spacing 6
+    (label :class "music-heading" :text "Now Playing" :halign "start")
+    (label :class "music-text" :text np-title :halign "start" :limit-width 38)
+    (label :class "music-artist" :text np-artist :halign "start" :limit-width 46)
+    (scale :class "music-progress" :min 0 :max 100 :value media-progress :onchange "~/.config/eww/scripts/media.py seek {}")
+    (box :class "music-controls" :space-evenly false :spacing 18 :halign "center"
+      (button :class "transport" :onclick "playerctl previous" :tooltip "Previous track"
+        (image :path "assets/previous-dark.svg" :image-width 24 :image-height 24))
+      (button :class "transport-main" :onclick "playerctl play-pause" :tooltip "Play / pause"
+        (image :path {np-status == "Playing" ? "assets/pause.svg" : "assets/play.svg"} :image-width 24 :image-height 24))
+      (button :class "transport" :onclick "playerctl next" :tooltip "Next track"
+        (image :path "assets/next-dark.svg" :image-width 24 :image-height 24)))))
+
+(defvar launcher-query "")
+(defpoll launcher-weather :interval "60s" :initial '{"temperature":"—","location":"Chandigarh","status":"Local weather"}'
+  "~/.config/eww/scripts/launcher-weather.py")
 
 (defwindow app-launcher
   :monitor 0
-  :geometry (geometry :x "40px" :y "40px" :width "480px" :height "420px" :anchor "bottom left")
+  :geometry (geometry :x "40px" :y "40px" :width "620px" :height "530px" :anchor "bottom left")
   :stacking "overlay"
-  (box :class "launcher-window" :orientation "v" :space-evenly false :spacing 0
-    (box :class "launcher-header" :orientation "h" :space-evenly false :spacing 8
-      (label :class "launcher-logo" :text "N")
-      (label :class "launcher-title" :text "Recently Used" :hexpand true :halign "start"))
-    (box :orientation "h" :space-evenly false :spacing 0
-      (box :class "launcher-sidebar" :orientation "v" :space-evenly false :spacing 2
-        (button :class "sidebar-item" :onclick "eww open --toggle power-menu &" "⏻  Power")
-        (box :orientation "h" :space-evenly false :spacing 0
-          (button :class "sidebar-item" :onclick "eww open settings-app ; eww close app-launcher" :hexpand true "⚙  Settings")
-          (eventbox :onclick {more-open ? "eww update more-open=false" : "eww update more-open=true"}
-            (label :class "sidebar-item" :text {more-open ? "▾" : "▸"})))
+  :focusable true
+  (box :class "launcher-window" :orientation "v" :space-evenly false :spacing 16
+    (box :class "launcher-search" :orientation "h" :space-evenly false :spacing 12
+      (label :class "launcher-search-icon" :text "⌕")
+      (overlay :hexpand true
+        (input :class "launcher-input" :value "" :hexpand true :timeout "2s"
+          :onchange "~/.config/eww/scripts/launcher-search.py '{}'"
+          :onaccept "eww close app-launcher; ~/.local/share/nothingos/app-launch.sh '{}'")
+        (label :class "launcher-placeholder" :markup "<span font_family='Ndot 55'>Search apps, files, or settings...</span>"
+          :visible {launcher-query == ""} :halign "start" :valign "center")))
+    (box :class "launcher-header" :orientation "h" :space-evenly false :spacing 10
+      (image :path "assets/glyphos-dark.svg" :image-width 30 :image-height 30)
+      (label :class "launcher-title" :markup "<span font_family='Ndot 55'>GLYPHOS</span>" :hexpand true :halign "start")
+      (button :class "launcher-close" :onclick "eww close app-launcher" "×"))
+    (box :class "launcher-body" :orientation "h" :space-evenly false :spacing 18
+      (box :class "launcher-sidebar" :orientation "v" :space-evenly false :spacing 6
+        (button :class "sidebar-item" :onclick "~/.config/eww/scripts/modal.py power" (label :markup "<span font_family='Ndot 55'>⏻  Power</span>"))
+        (box :orientation "h" :space-evenly false :spacing 6
+          (button :class "sidebar-item" :onclick "eww open settings-window; eww close app-launcher" :hexpand true (label :markup "<span font_family='Ndot 55'>⚙  Settings</span>"))
+          (button :class "launcher-more" :onclick {more-open ? "eww update more-open=false" : "eww update more-open=true"}
+            {more-open ? "▾" : "▸"}))
         (revealer :reveal more-open :transition "slidedown"
-          (box :orientation "v" :spacing 2
-            (button :class "sidebar-item" :onclick "eww open --toggle device-manager & ; eww close app-launcher" "🔌  Devices")
-            (button :class "sidebar-item" :onclick "eww open --toggle power-display &; eww close app-launcher" "🔋  Display & Power")))
-        (button :class "sidebar-item" :onclick "eww open --toggle task-manager & ; eww close app-launcher" "📊  Task Manager")
-        (button :class "sidebar-item" :onclick "eww open --toggle doc-reader &; eww close app-launcher" "📄  Documents")
-        (button :class "sidebar-item" :onclick "eww open --toggle screen-tools &; eww close app-launcher" "📸  Screenshot")
-        (button :class "sidebar-item" :onclick "eww open --toggle calendar-tasks &; eww close app-launcher" "📅  Calendar")
-        (button :class "sidebar-item" :onclick "xdg-open https://mail.google.com ; eww close app-launcher" "✉  Gmail")
-        (button :class "sidebar-item" :onclick "vlc ; eww close app-launcher" "♪  Music Player")
-        (button :class "sidebar-allapps" :onclick "eww close app-launcher" "All Apps"))
-      (box :class "launcher-grid" :orientation "v" :space-evenly false :spacing 8
-        (box :orientation "h" :space-evenly false :spacing 8
-          (box :class "tile tile-wide" :orientation "v" :space-evenly false :spacing 2
-            (label :class "tile-value" :text "16°C" :halign "start")
-            (label :class "tile-label" :text "Ludhiana · cloud" :halign "start"))
-          (button :class "tile" :onclick "dolphin ; eww close app-launcher"
-            (box :orientation "v" :spacing 4
-              (label :class "tile-icon" :text "📁")
-              (label :class "tile-label" :text "Documents"))))
-        (box :orientation "h" :space-evenly false :spacing 8
-          (button :class "tile" :onclick "dolphin ; eww close app-launcher"
-            (box :orientation "v" :spacing 4
-              (label :class "tile-icon" :text "📁")
-              (label :class "tile-label" :text "Files")))
-          (button :class "tile" :onclick "brave ; eww close app-launcher"
-            (box :orientation "v" :spacing 4
-              (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 32 :image-height 32)
-              (label :class "tile-label" :text "Internet"))))))
-    (box :class "launcher-search" :orientation "h" :space-evenly false :spacing 8
-      (label :text "🔍")
-      (input :class "search-placeholder" :value "" :hexpand true :onchange "eww update search-preview=$(~/.local/share/nothingos/app-search.sh {} | head -1)" :onaccept "~/.local/share/nothingos/app-launch.sh {}; eww close app-launcher"))))
+          (box :orientation "v" :space-evenly false :spacing 6
+            (button :class "sidebar-item" :onclick "eww open device-manager; eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Devices</span>"))
+            (button :class "sidebar-item" :onclick "eww open power-display; eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Display &amp; Power</span>"))))
+        (button :class "sidebar-item" :onclick "eww open task-manager; eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Task Manager</span>"))
+        (button :class "sidebar-item" :onclick "eww open doc-reader; eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Documents</span>"))
+        (button :class "sidebar-item" :onclick "eww open screen-tools; eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Screenshot</span>"))
+        (button :class "sidebar-item" :onclick "eww open calendar-tasks; eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Calendar</span>"))
+        (button :class "sidebar-item" :onclick "xdg-open https://mail.google.com & eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Gmail</span>"))
+        (button :class "sidebar-item" :onclick "spotify & eww close app-launcher" (label :markup "<span font_family='Ndot 55'>Music Player</span>"))
+        (button :class "sidebar-allapps" :onclick "eww close app-launcher" (label :markup "<span font_family='Ndot 55'>All Apps</span>")))
+      (box :class "launcher-grid" :orientation "v" :space-evenly false :spacing 12 :hexpand true :valign "start"
+        (label :class "launcher-section-title" :markup "<span font_family='Ndot 55'>PINNED</span>" :halign "start")
+        (box :orientation "h" :space-evenly true :spacing 12
+          (box :class "tile launcher-weather-card" :orientation "v" :space-evenly false :spacing 8
+            (label :class "tile-value" :markup "<span font_family='Ndot 55'>${launcher-weather.temperature}</span>" :halign "start")
+            (label :class "tile-label" :text {launcher-weather.location} :halign "start")
+            (label :class "launcher-weather-status" :text {launcher-weather.status} :halign "start"))
+          (button :class "tile" :onclick "dolphin ~/Documents & eww close app-launcher"
+            (box :orientation "v" :space-evenly false :spacing 12
+              (image :path "/usr/share/icons/Papirus-Light/64x64/apps/system-file-manager.svg" :image-width 36 :image-height 36)
+              (label :class "tile-label" :markup "<span font_family='Ndot 55'>Documents</span>"))))
+        (box :orientation "h" :space-evenly true :spacing 12
+          (button :class "tile" :onclick "dolphin & eww close app-launcher"
+            (box :orientation "v" :space-evenly false :spacing 12
+              (image :path "/usr/share/icons/Papirus-Light/64x64/apps/system-file-manager.svg" :image-width 36 :image-height 36)
+              (label :class "tile-label" :markup "<span font_family='Ndot 55'>Files</span>")))
+          (button :class "tile" :onclick "brave & eww close app-launcher"
+            (box :orientation "v" :space-evenly false :spacing 12
+              (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 36 :image-height 36)
+              (label :class "tile-label" :markup "<span font_family='Ndot 55'>Internet</span>"))))
+        (label :class "launcher-search-result" :text search-preview :visible {launcher-query != ""} :halign "start" :limit-width 28)))))
 
 (defwindow power-menu
   :monitor 0
   :geometry (geometry :x "500px" :y "100px" :width "200px" :height "160px" :anchor "bottom left")
   :stacking "overlay"
+  :focusable false
   (box :class "launcher-sidebar" :orientation "v" :space-evenly false :spacing 4
-    (button :class "sidebar-item" :onclick "systemctl poweroff" "⏻  Shut Down")
-    (button :class "sidebar-item" :onclick "systemctl reboot" "⟳  Restart")
-    (button :class "sidebar-item" :onclick "hyprctl dispatch exit" "↪  Log Out")
-    (button :class "sidebar-item" :onclick "eww close power-menu" "✕  Cancel")))
+    (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py shutdown" "⏻  Shut Down")
+    (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py reboot" "⟳  Restart")
+    (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py logout" "↪  Log Out")
+    (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py close" "✕  Cancel")))
 
 (defpoll cpu-usage :interval "2s" "top -bn1 | grep 'Cpu(s)' | awk '{print 100-$8}' | cut -d'.' -f1 || echo 0")
 (defpoll mem-usage :interval "2s" "free | awk '/Mem:/ {printf \"%.0f\", $3/$2*100}'")
@@ -325,6 +455,7 @@
   :monitor 0
   :geometry (geometry :x "20px" :y "440px" :width "280px" :height "220px" :anchor "top right")
   :stacking "overlay"
+  :focusable false
   (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 10
     (label :class "cc-title" :text "WI-FI NETWORKS" :halign "start")
     (label :class "cc-label" :text wifi-list :halign "start" :wrap true)
@@ -334,6 +465,7 @@
   :monitor 0
   :geometry (geometry :x "20px" :y "440px" :width "280px" :height "220px" :anchor "top right")
   :stacking "overlay"
+  :focusable false
   (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 10
     (label :class "cc-title" :text "BLUETOOTH DEVICES" :halign "start")
     (label :class "cc-label" :text bt-list :halign "start" :wrap true)
@@ -341,13 +473,17 @@
 
 (defwindow weather
   :monitor 0
-  :geometry (geometry :x "40px" :y "40px" :width "280px" :height "90px" :anchor "top left")
+  :geometry (geometry :x "4%" :y "11%" :width "570px" :height "164px" :anchor "top left")
   :stacking "bottom"
-  (box :class "weather-widget" :orientation "h" :space-evenly false :spacing 10
-    (label :class "weather-icon" :text "☁" :halign "start")
-    (box :orientation "v" :spacing 2
-    (label :class "sys-value" :text "16°C" :halign "start")
-    (label :class "sys-label" :text "Chandigarh" :halign "start"))))
+  :focusable false
+  (box :class "desktop-heading" :orientation "v" :space-evenly false :spacing 0
+    (box :space-evenly false :spacing 30
+      (label :class "ndot-heading" :markup "<span font_family='Ndot 55'>NOTHING</span>")
+      (label :class "ndot-heading" :markup "<span font_family='Ndot 55'>${launcher-weather.temperature}</span>"))
+    (box :space-evenly false :spacing 30
+      (label :class "ndot-heading" :markup "<span font_family='Ndot 55'>CLOCK</span>")
+      (image :path "assets/cloud-dark.svg" :image-width 108 :image-height 62)
+      (label :class "desktop-city" :text {launcher-weather.location} :valign "start"))))
 
 (defpoll usb-devices :interval "5s" "lsusb | grep -v 'Linux Foundation' | cut -d' ' -f7- | head -6")
 (defpoll audio-sinks :interval "5s" "pactl list short sinks | awk '{print $2}' | head -4")
@@ -367,11 +503,11 @@
   :monitor 0
   :geometry (geometry :x "0px" :y "0px" :width "700px" :height "600px" :anchor "center")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Device Manager" :halign "start" :hexpand true)
-      
-      (button :class "close-btn" :onclick "eww close device-manager" "✕"))
+      (traffic-lights :window-name "device-manager"))
     (box :class "dm-panel-dark" :orientation "v" :space-evenly false :spacing 4 :vexpand true
       (label :class "cc-title" :text "💻 NOTHING-ARCH" :halign "start")
       (eventbox :onclick {dm-audio-open ? "eww update dm-audio-open=false" : "eww update dm-audio-open=true"}
@@ -410,12 +546,13 @@
 
 (defwindow device-manager-max
   :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%" :anchor "center")
+  :geometry (geometry :x "0px" :y "0px" :y "-72px" :width "100%" :height "100%" :anchor "top left")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0 :vexpand true :hexpand true
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Device Manager" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close device-manager-max; eww open device-manager" "⤡"))
+      (traffic-lights :window-name "device-manager-max"))
     (box :class "dm-panel-dark" :orientation "v" :space-evenly false :spacing 4 :vexpand true :hexpand true
       (label :class "cc-title" :text "🔊  Audio devices" :halign "start")
       (label :class "cc-label" :text audio-sinks :halign "start" :wrap true)
@@ -430,19 +567,20 @@
   :monitor 0
   :geometry (geometry :x "0px" :y "0px" :width "420px" :height "360px" :anchor "center")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Task Manager" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close task-manager" "✕"))
+      (traffic-lights :window-name "task-manager"))
     (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 14
       (label :class "cc-title" :text "TOP PROCESSES (CPU%)" :halign "start")
       (label :class "cc-label" :text top-processes :halign "start" :wrap true)
       (button :class "cc-tile" :onclick "kitty -e htop &" "Open Full Task Manager"))))
 
-(defpoll recent-docs :interval "10s" "find ~/Documents ~/Downloads -maxdepth 1 -type f \\( -iname '*.pdf' -o -iname '*.docx' -o -iname '*.txt' \\) 2>/dev/null | xargs -n1 basename 2>/dev/null | head -8")
+(defpoll recent-docs :interval "10s" "find ~/Documents ~/Downloads -maxdepth 1 -type f \\( -iname '*.pdf' -o -iname '*.docx' -o -iname '*.txt' \\) 2>/dev/null | xargs -r -d '\\n' -n1 basename 2>/dev/null | head -8")
 (defpoll calendar-view :interval "60s" "cal")
 (defpoll today-date :interval "60s" "date '+%A, %d %B %Y'")
-(defpoll tasks-list :interval "3s" "cat ~/.local/share/nothingos/tasks.txt 2>/dev/null")
+(defpoll tasks-list :interval "3s" "cat ~/.local/share/nothingos/tasks.txt 2>/dev/null || true")
 (defpoll recording-status :interval "2s" "pgrep wf-recorder > /dev/null && echo 'Recording...' || echo 'Not recording'")
 (defpoll power-profile :interval "5s" "powerprofilesctl get 2>/dev/null || echo 'balanced'")
 
@@ -450,10 +588,11 @@
   :monitor 0
   :geometry (geometry :x "0px" :y "0px" :width "420px" :height "440px" :anchor "center")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Documents" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close doc-reader" "✕"))
+      (traffic-lights :window-name "doc-reader"))
     (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 10
       (label :class "cc-title" :text "RECENT DOCUMENTS" :halign "start")
       (label :class "cc-label" :text recent-docs :halign "start" :wrap true)
@@ -463,10 +602,11 @@
   :monitor 0
   :geometry (geometry :x "0px" :y "0px" :width "320px" :height "260px" :anchor "center")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Screenshot & Recorder" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close screen-tools" "✕"))
+      (traffic-lights :window-name "screen-tools"))
     (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 12
       (button :class "cc-tile" :onclick "grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png" "📸 Full Screenshot")
       (button :class "cc-tile" :onclick "grim -g \"$(slurp)\" ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png" "✂ Select Area")
@@ -478,10 +618,11 @@
   :monitor 0
   :geometry (geometry :x "0px" :y "0px" :width "420px" :height "480px" :anchor "center")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Calendar & Tasks" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close calendar-tasks" "✕"))
+      (traffic-lights :window-name "calendar-tasks"))
     (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 10
       (label :class "cc-title" :text today-date :halign "start")
       (label :class "cc-label" :text calendar-view :halign "start")
@@ -493,10 +634,11 @@
   :monitor 0
   :geometry (geometry :x "0px" :y "0px" :width "320px" :height "300px" :anchor "center")
   :stacking "overlay"
+  :focusable false
   (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0
-    (box :class "settings-titlebar" :orientation "h" :space-evenly false :spacing 0
+    (box :class "settings-titlebar" :space-evenly false :spacing 14
       (label :class "titlebar-text" :text "Display & Power" :halign "start" :hexpand true)
-      (button :class "close-btn" :onclick "eww close power-display" "✕"))
+      (traffic-lights :window-name "power-display"))
     (box :class "cc-panel" :orientation "v" :space-evenly false :spacing 12
       (label :class "cc-label" :text "Brightness" :halign "start")
       (scale :min 0 :max 100 :value 70 :onchange "brightnessctl set {}\%")
@@ -506,3 +648,15 @@
         (button :class "cc-tile" :onclick "powerprofilesctl set balanced 2>/dev/null" "Balanced")
         (button :class "cc-tile" :onclick "powerprofilesctl set performance 2>/dev/null" "Performance"))
       (button :class "cc-tile" :onclick "systemctl suspend" "💤 Sleep"))))
+
+;; A non-focusable foreground surface catches only clicks outside overlay panels.
+;; modal.py removes it and the temporary Escape binding as soon as the panel closes.
+(deflisten modal-active :initial "false" "~/.config/eww/scripts/modal.py watch")
+(defwindow modal-dismiss
+  :namespace "modal-dismiss"
+  :monitor 0
+  :geometry (geometry :y "-72px" :width "100%" :height "100%" :anchor "top left")
+  :stacking "fg"
+  :exclusive false
+  :focusable false
+  (button :class "modal-dismiss" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py close" :hexpand true :vexpand true ""))
