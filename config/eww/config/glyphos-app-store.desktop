@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Glyph App Store
+Comment=User-only Flathub apps for GlyphOS
+Exec=/home/nothing_os/.config/eww/scripts/app-store.py
+Icon=/home/nothing_os/.config/eww/assets/glyphos.svg
+Terminal=false
+Categories=System;PackageManager;
+StartupWMClass=app-store.py

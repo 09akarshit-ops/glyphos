@@ -1,0 +1,35 @@
+/* Stable, circular bounds for application and utility dock buttons. */
+.glass-dock .dock-icon, .glass-dock .glyph-action {
+  min-width: 48px; min-height: 48px;
+  padding: 5px; margin: 0; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%; background-image: none; background-color: #242625;
+  color: #ffffff; box-shadow: none; transition: background-color 150ms ease;
+}
+.glass-dock .dock-icon:hover, .glass-dock .glyph-action:hover { background-color: #424441; }
+.island-pill { background-color: #000000; border-radius: 24px; padding: 2px 16px; min-height: 42px; }
+.island-active { color: #ffffff; font-size: 18px; font-weight: 600; }
+.island-next { color: rgba(255,255,255,0.4); font-size: 14px; }
+
+/* The control row grows with the Island typography. */
+.taskbar-center-row { padding: 0 20px; min-height: 34px; }
+.taskbar-center-row .island-pill { margin: 0; }
+.taskbar-center-row .bar-utility {
+  background-color: #242625; background-image: none; color: #ffffff;
+  border: none; border-radius: 50%; box-shadow: none;
+  min-width: 28px; min-height: 28px; padding: 0; margin: 0;
+  font-family: sans-serif; font-size: 24px;
+}
+.taskbar-center-row .bar-utility:hover { background-color: #424441; }
+.taskbar-center-row .bar-utility.radio-on { background-color: #53574f; }
+.bar-wordmark { font-family: "Ndot 55"; font-size: 19px; letter-spacing: 2px; }
+.glass-dock { transition: background-color 150ms ease; }
+
+/* Shared launcher logo, centered directly above the Island. */
+.desktop-bar .bar-brand { padding: 0; min-height: 30px; }
+.desktop-bar .glyphos-brand .launcher-title { font-family: "Ndot 55"; font-size: 19px; }
+.taskbar-center-row .bar-utility { min-width: 28px; min-height: 28px; padding: 0; }
+
+/* Restored two-row taskbar; the Island remains at the screen's top center. */
+.desktop-bar { padding: 0 20px; min-height: 50px; }
+.taskbar-center-row .bar-brand { padding: 0; min-height: 30px; }
+.taskbar-center-row .glyphos-brand .launcher-title { font-family: "Ndot 55"; font-size: 19px; }

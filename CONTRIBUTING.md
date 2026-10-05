@@ -9,8 +9,10 @@ development. Contributions are welcome, but a few notes:
   Check parentheses/brace balance before submitting — `eww` fails silently on mismatched
   brackets and can break the entire desktop shell.
 - Keep the light, minimal aesthetic — no dark-mode-only additions, no gradients or heavy shadows.
-- Test any change with `eww kill; pkill -9 eww; sleep 1; eww daemon; sleep 1; eww open <window>`
-  before submitting.
+- Test widget changes with `eww --no-daemonize reload` against the managed Eww service.
+  Restart lyrics with `systemctl --user restart --no-block glyphos-lyrics.service`.
+- Run offline provider tests with `python3 tests/lyrics_provider_test.py` and
+  `python3 tests/lyrics_web_test.py`.
 
 ## Reporting bugs
 

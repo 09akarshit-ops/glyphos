@@ -23,7 +23,7 @@ def run(*args):
 
 
 def eww(*args):
-    return run('eww', '--config', str(BASE), *args)
+    return run('eww','--no-daemonize', '--config', str(BASE), *args)
 
 
 def active():
@@ -37,47 +37,8 @@ def close():
 
 
 def watch():
-    previous = set()
-    binding = f', Escape, exec, {BASE}/scripts/modal.py close'
-    owned = False
-
-    def cleanup(*_):
-        # Never call Eww from a deflisten shutdown: reload waits for us to exit.
-        sys.exit(0)
-
-    signal.signal(signal.SIGTERM, cleanup)
-    signal.signal(signal.SIGINT, cleanup)
+    # Compatibility only: lifecycle is owned by the GlyphOS systemd service.
     print('false', flush=True)
-    while True:
-        try:
-            opened = active()
-            current = opened & set(MODALS)
-            new = current - previous
-            # Direct opens from Super and external launchers are covered too.
-            if new and current - new:
-                eww('close', *sorted(current - new))
-                current = new
-            binds = json.loads(run('hyprctl', 'binds', '-j'))
-            escapes = [b for b in binds if b['modmask'] == 0 and b['key'] == 'Escape']
-            ours = any(b.get('arg') == f'{BASE}/scripts/modal.py close' for b in escapes)
-            if current:
-                if not escapes:
-                    run('hyprctl', 'keyword', 'bind', binding)
-                    owned = True
-                if 'modal-dismiss' not in opened:
-                    eww('open', 'modal-dismiss')
-            else:
-                if ours:
-                    run('hyprctl', 'keyword', 'unbind', ', Escape')
-                owned = False
-                if 'modal-dismiss' in opened:
-                    eww('close', 'modal-dismiss')
-            if current != previous:
-                print('true' if current else 'false', flush=True)
-            previous = current
-        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
-            print(f'modal: {error}', file=sys.stderr, flush=True)
-        time.sleep(0.15)
 
 
 if __name__ == '__main__':

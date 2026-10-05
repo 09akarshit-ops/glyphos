@@ -28,21 +28,21 @@ def panel(action,name):
     if name not in allowed: raise ValueError('Unknown panel')
     state=load()
     if action=='restore':
-        run('eww','open',name);state['panels'].pop(name,None)
+        run('eww','--no-daemonize','open',name);state['panels'].pop(name,None)
     elif action in ('close','minimize'):
-        run('eww','close',name)
+        run('eww','--no-daemonize','close',name)
         if action=='minimize': state['panels'][name]=name.replace('-',' ').title()
         else: state['panels'].pop(name,None)
     elif action=='maximize':
-        run('eww','close',name)
+        run('eww','--no-daemonize','close',name)
         if name in state['maximized']:
-            state['maximized'].remove(name);run('eww','open',name)
+            state['maximized'].remove(name);run('eww','--no-daemonize','open',name)
         else:
             monitor=next(m for m in query('monitors') if m['focused'])
             width=round(monitor['width']/monitor['scale'])
             height=round(monitor['height']/monitor['scale'])-monitor['reserved'][1]-monitor['reserved'][3]
             state['maximized'].append(name)
-            run('eww','open',name,'--size',f'{width}x{height}','--pos','0x0','--anchor','top center')
+            run('eww','--no-daemonize','open',name,'--size',f'{width}x{height}','--pos','0x0','--anchor','top center')
     save(state)
 
 def desktop():
@@ -65,30 +65,20 @@ def desktop():
         for entry in entries:dispatch('movetoworkspacesilent',f"special:desktop,address:{entry['address']}")
 
 def native(action,address):
+    focused=query('activewindow').get('address','')
+    if address=='active':address=focused
+    # Never act on stale header data or focus a background window to operate on it.
+    if not focused or address!=focused:return
     if not re.fullmatch(r'0x[0-9a-fA-F]+',address):raise ValueError('Invalid address')
     if not any(c['address']==address for c in query('clients')):return
     if action=='close':dispatch('closewindow',f'address:{address}')
     elif action=='minimize':click(address, force_minimize=True)
     elif action=='maximize':
-        dispatch('focuswindow',f'address:{address}');dispatch('fullscreen','1')
+        if query('activewindow').get('address')==address:dispatch('fullscreen','1')
 
 def watch():
-    previous=None
-    last_address=None
-    while True:
-        try:
-            client=query('activewindow')
-            if not client.get('address'):
-                workspace=query('activeworkspace')['id']
-                candidates=[c for c in query('clients') if c['mapped'] and c['workspace']['id']==workspace]
-                client=next((c for c in candidates if c['address']==last_address),
-                            min(candidates, key=lambda c:c.get('focusHistoryID',999), default={}))
-            if client.get('address'):last_address=client['address']
-            value={'address':client.get('address',''),'title':client.get('title',''), 'visible':bool(client.get('address')) and not client.get('workspace',{}).get('name','').startswith('special:')}
-            line=json.dumps(value)
-            if line!=previous: print(line,flush=True);previous=line
-        except (OSError,ValueError,subprocess.SubprocessError):pass
-        time.sleep(.3)
+    client=query('activewindow')
+    print(json.dumps({'address':client.get('address',''),'title':client.get('title',''),'visible':bool(client.get('address'))}),flush=True)
 
 if __name__=='__main__':
     try:

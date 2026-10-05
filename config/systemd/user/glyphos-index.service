@@ -1,0 +1,10 @@
+[Unit]
+Description=GlyphOS bounded local file content index
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.config/glyphos/scripts/search.py index
+TimeoutStartSec=30
+Nice=10
+IOSchedulingClass=idle
+UMask=0077

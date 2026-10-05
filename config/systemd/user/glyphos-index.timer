@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh GlyphOS local search index
+
+[Timer]
+OnStartupSec=10
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

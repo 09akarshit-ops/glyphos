@@ -23,3 +23,13 @@ secrets/
 *.secret
 # User task data
 local/share/nothingos/tasks.txt
+
+# Per-user GlyphOS state (examples remain distributable)
+config/glyphos/gemini.env
+config/glyphos/gemini.json
+config/glyphos/clipboard_pins.txt
+*.lock
+config/eww/config/applications.json
+config/eww/config/pinned_apps.json
+config/eww/config/app-jobs/
+config/glyphos/themes/dark-assets/

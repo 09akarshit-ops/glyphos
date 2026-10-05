@@ -34,6 +34,10 @@ def state_path():
 
 
 def click(address, force_minimize=False):
+    if address.startswith('pinned:'):
+        from app_service import launch
+        launch(address.split(':',1)[1])
+        return
     if address.startswith('eww:'):
         subprocess.run([str(BASE/'scripts/window-management.py'), 'panel', 'restore', address[4:]], timeout=5, check=True)
         return
@@ -94,6 +98,8 @@ class Icons:
         # Browser app classes have per-site names; match before theme fallbacks.
         identity=' '.join(str(client.get(key, '')) for key in ('class', 'initialClass')).lower()
         title=str(client.get('title', '')).lower()
+        if 'zapzap' in identity or 'whatsapp' in identity or (any(token in identity for token in ('brave','chromium','chrome')) and 'whatsapp' in title):
+            return str(BASE / 'assets/whatsapp.svg')
         browser=any(token in identity for token in ('brave', 'chromium', 'chrome'))
         if 'gemini' in identity or (browser and 'gemini' in title):
             return str(BASE / 'assets/gemini.svg')
@@ -112,23 +118,38 @@ class Icons:
 
 
 def windows(icons):
+    from app_service import resolve, pins
     clients = query('clients')
     active = query('activewindow').get('address')
     result = []
+    represented = set()
     for client in clients:
         address = client.get('address', '')
         if not client.get('mapped') or not re.fullmatch(r'0x[0-9a-fA-F]+', address):
             continue
         minimized = client['workspace']['name'] == MINIMIZED
+        app = resolve(client)
+        key = app['key'] if app else 'unsupported'
+        represented.add(key)
         result.append({'address': address, 'icon': icons.get(client),
+                       'app_key': key,
                        'style': 'taskbar-button' + (' minimized' if minimized else ' focused' if active == address else ''),
                        'tooltip': f"{client.get('class', 'Application')} — {client.get('title', '')}\n" +
                                   ('Minimized · click to restore' if minimized else f"Workspace {client['workspace']['name']} · click to " + ('minimize' if active == address else 'focus'))})
     try:
         from window_management_state import minimized_panels
-        result.extend(minimized_panels())
+        result.extend(dict(p,app_key='unsupported') for p in minimized_panels())
     except (ImportError, OSError, ValueError):
         pass
+    for app in pins():
+        if app['key'] in represented:
+            continue
+        icon = None
+        if icons.theme and app.get('icon_name'):
+            icon = icons.theme.lookup_icon(app['icon_name'],24,0)
+        result.append({'address':'pinned:'+app['key'], 'app_key':app['key'],
+                       'icon':app['icon_name'] if Path(app.get('icon_name','')).is_file() else (icon.get_filename() if icon else str(BASE/'assets/glyphos-dark.svg')),
+                       'style':'taskbar-button pinned', 'tooltip':app['name']+' · Pinned · click to open'})
     return result
 
 
@@ -136,17 +157,4 @@ if __name__ == '__main__':
     if len(sys.argv) == 3 and sys.argv[1] == 'click':
         click(sys.argv[2])
     else:
-        icons = Icons()
-        previous = None
-        while True:
-            try:
-                output = json.dumps(windows(icons), ensure_ascii=False)
-                if output != previous:
-                    print(output, flush=True)
-                    previous = output
-            except (OSError, ValueError, subprocess.SubprocessError) as error:
-                print(f'taskbar: {error}', file=sys.stderr, flush=True)
-                if previous is None:
-                    print('[]', flush=True)
-                    previous = '[]'
-            time.sleep(0.5)
+        print(json.dumps(windows(Icons()), ensure_ascii=False),flush=True)

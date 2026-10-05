@@ -1,0 +1,7 @@
+* { font: "Ndot 55 13"; background-color: transparent; text-color: #111111; }
+window { width: 640px; border: 1px; border-color: #111111; border-radius: 24px; background-color: #e9e9e4ed; padding: 20px; }
+mainbox { children: [inputbar, listview]; spacing: 14px; }
+inputbar { children: [prompt, entry]; spacing: 10px; }
+listview { lines: 10; scrollbar: false; }
+element { padding: 10px; border-radius: 12px; }
+element selected { background-color: #007aff; text-color: #ffffff; }

@@ -1,0 +1,14 @@
+[Unit]
+Description=GlyphOS searchable text clipboard history
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/wl-paste --type text --watch /usr/bin/cliphist store
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=3
+UMask=0077
+
+[Install]
+WantedBy=default.target

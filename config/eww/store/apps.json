@@ -1,0 +1,82 @@
+[
+  {
+    "id": "com.spotify.Client",
+    "name": "Spotify",
+    "category": "Sound",
+    "description": "Music and podcasts",
+    "icon": "com.spotify.Client",
+    "fallback": "store-spotify.svg"
+  },
+  {
+    "id": "com.rtosta.zapzap",
+    "name": "WhatsApp",
+    "category": "Utilities",
+    "description": "WhatsApp messaging via the unofficial ZapZap client",
+    "icon": "com.rtosta.zapzap",
+    "fallback": "whatsapp.svg"
+  },
+  {
+    "id": "com.discordapp.Discord",
+    "name": "Discord",
+    "category": "Sound",
+    "description": "Chat with your communities",
+    "icon": "com.discordapp.Discord",
+    "fallback": "store-discord.svg"
+  },
+  {
+    "id": "com.brave.Browser",
+    "name": "Brave Browser",
+    "category": "Utilities",
+    "description": "Browse privately with built-in ad blocking",
+    "icon": "store-com.brave.Browser.png",
+    "fallback": "browser.svg"
+  },
+  {
+    "id": "com.visualstudio.code",
+    "name": "VS Code",
+    "category": "Creation",
+    "description": "Edit code, debug, and build projects",
+    "icon": "store-com.visualstudio.code.png",
+    "fallback": "glyphos.svg"
+  },
+  {
+    "id": "md.obsidian.Obsidian",
+    "name": "Obsidian",
+    "category": "Creation",
+    "description": "Connect your notes and ideas",
+    "icon": "store-md.obsidian.Obsidian.png",
+    "fallback": "notes.svg"
+  },
+  {
+    "id": "com.valvesoftware.Steam",
+    "name": "Steam",
+    "category": "Games",
+    "description": "Discover and play PC games",
+    "icon": "store-com.valvesoftware.Steam.png",
+    "fallback": "glyphos.svg"
+  },
+  {
+    "id": "org.localsend.localsend_app",
+    "name": "LocalSend",
+    "category": "Utilities",
+    "description": "Share files across nearby devices",
+    "icon": "store-org.localsend.localsend_app.png",
+    "fallback": "files.svg"
+  },
+  {
+    "id": "org.telegram.desktop",
+    "name": "Telegram",
+    "category": "Utilities",
+    "description": "Fast messaging and group conversations",
+    "icon": "store-org.telegram.desktop.png",
+    "fallback": "chat.svg"
+  },
+  {
+    "id": "org.videolan.VLC",
+    "name": "VLC",
+    "category": "Sound",
+    "description": "Play videos and music",
+    "icon": "store-org.videolan.VLC.png",
+    "fallback": "play.svg"
+  }
+]

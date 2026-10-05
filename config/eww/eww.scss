@@ -47,34 +47,6 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2);
 }
 
-.dock-icon {
-  background-color: transparent;
-  border-radius: 50%;
-  padding: 8px;
-    border: none;
-    box-shadow: none;
-    outline: none;
-  margin: 0px 0px 0px 0px;
-  /* Smooth transition for size and background changes */
-  transition: all 150ms ease-in-out;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    /* Lifts the icon up using top margin and expands padding slightly */
-    margin-top: -6px;
-    padding: 6px;
-  }
-
-  &:active {
-    margin-top: 0px;
-    padding: 2px;
-  }
-}
-
-.dock-icon:hover {
-    background-color: #d0d0cb;
-}
-
 .np-widget {
     background-color: #ffffff;
     border-radius: 18px;
@@ -582,9 +554,9 @@ window.control-center { background: transparent; border-radius: 28px; }
 .native-titlebar { background: rgba(233,233,228,0.97); color: #242625; padding: 0 16px; font-size: 12px; min-height: 30px; }
 .traffic-lights { padding: 2px 0; }
 button.traffic-light { background-image: none; border: 1px solid rgba(0,0,0,0.16); border-radius: 50%; min-width: 12px; min-height: 12px; padding: 0; box-shadow: none; }
-button.traffic-light.red { background: #ff5f57; }
-button.traffic-light.yellow { background: #febc2e; }
-button.traffic-light.green { background: #28c840; }
+button.traffic-light.close { background: transparent; }
+button.traffic-light.minimize { background: transparent; }
+button.traffic-light.maximize { background: transparent; }
 button.traffic-light:hover { box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2); }
 
 button.traffic-light, button.traffic-light label { font-size: 0; }
@@ -602,8 +574,8 @@ window.top-bar { margin: 0; padding: 0; }
   background-image: none;
   border: none;
   border-radius: 50%;
-  min-width: 20px;
-  min-height: 20px;
+  min-width: 24px;
+  min-height: 24px;
   padding: 0;
   margin: 0;
   box-shadow: none;
@@ -615,3 +587,79 @@ window.top-bar { margin: 0; padding: 0; }
 .dock-media .music-artist { font-size: 12px; color: #62645d; }
 .dock-media .transport { min-height: 36px; min-width: 36px; }
 .dock-media .transport-main { min-height: 38px; min-width: 42px; }
+
+/* Glyph App Store taskbar menus echo the reference's pale glass cards. */
+.app-context-menu, .app-confirm {
+  background: rgba(233,239,238,0.97);
+  border: 1px solid rgba(255,255,255,0.85);
+  border-radius: 20px;
+  padding: 18px;
+  color: #202625;
+  box-shadow: 0 9px 22px rgba(0,0,0,0.20);
+}
+.app-menu-title { font-family: "Ndot"; font-size: 22px; }
+.app-menu-item { background: rgba(255,255,255,0.55); border-radius: 12px; padding: 10px 14px; color: #242a29; }
+.app-menu-item:hover { background: rgba(255,255,255,0.95); }
+.app-menu-item:disabled { opacity: 0.45; }
+.app-menu-item.destructive { color: #bf2434; }
+.app-menu-note { font-size: 12px; color: #626b69; }
+.taskbar-button.pinned { border-bottom: 2px dotted #737d79; }
+
+/* GlyphOS contextual controls and radio state. */
+.glyph-action { border: none; background: transparent; color: #111111; border-radius: 14px; padding: 7px; font-family: "Ndot 55"; }
+.glyph-action:hover { background: rgba(0, 0, 0, 0.08); }
+.radio-on { background-color: #e9e9e4; color: #111111; border-radius: 14px; }
+.dynamic-island { border-radius: 20px; padding: 4px 12px; background-color: rgba(233, 233, 228, 0.94); color: #111111; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); }
+.notification-stack { padding: 12px; border-radius: 16px; background-color: rgba(233, 233, 228, 0.9); }
+.bar-status-pill, .bar-battery-pill { box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); }
+.dynamic-island .glyph-action { padding: 2px 6px; min-height: 20px; font-size: 13px; }
+.dynamic-island label { font-size: 14px; }
+
+/* Stable, circular bounds for application and utility dock buttons. */
+.glass-dock .dock-icon, .glass-dock .glyph-action {
+  min-width: 48px; min-height: 48px;
+  padding: 5px; margin: 0; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%; background-image: none; background-color: #242625;
+  color: #ffffff; box-shadow: none; transition: background-color 150ms ease;
+}
+.glass-dock .dock-icon:hover, .glass-dock .glyph-action:hover { background-color: #424441; }
+.island-pill { background-color: #000000; border-radius: 24px; padding: 2px 16px; min-height: 42px; }
+.island-active { color: #ffffff; font-size: 18px; font-weight: 600; }
+.island-next { color: rgba(255,255,255,0.4); font-size: 14px; }
+
+/* The control row grows with the Island typography. */
+.taskbar-center-row { padding: 0 20px; min-height: 34px; }
+.taskbar-center-row .island-pill { margin: 0; }
+.taskbar-center-row .bar-utility {
+  background-color: #242625; background-image: none; color: #ffffff;
+  border: none; border-radius: 50%; box-shadow: none;
+  min-width: 28px; min-height: 28px; padding: 0; margin: 0;
+  font-family: sans-serif; font-size: 24px;
+}
+.taskbar-center-row .bar-utility:hover { background-color: #424441; }
+.taskbar-center-row .bar-utility.radio-on { background-color: #53574f; }
+.bar-wordmark { font-family: "Ndot 55"; font-size: 19px; letter-spacing: 2px; }
+.glass-dock { transition: background-color 150ms ease; }
+
+/* Shared launcher logo, centered directly above the Island. */
+.desktop-bar .bar-brand { padding: 0; min-height: 30px; }
+.desktop-bar .glyphos-brand .launcher-title { font-family: "Ndot 55"; font-size: 19px; }
+.taskbar-center-row .bar-utility { min-width: 28px; min-height: 28px; padding: 0; }
+
+/* Restored two-row taskbar; the Island remains at the screen's top center. */
+.desktop-bar { padding: 0 20px; min-height: 50px; }
+.taskbar-center-row .bar-brand { padding: 0; min-height: 30px; }
+.taskbar-center-row .glyphos-brand .launcher-title { font-family: "Ndot 55"; font-size: 19px; }
+
+/* Clipboard cards refresh in place without changing the layer surface. */
+.clipboard-panel { background: #e9e9e4; color: #242625; border-radius: 20px; padding: 16px; }
+.clipboard-title { font-size: 20px; font-weight: bold; }
+.clipboard-entry { background: rgba(128,128,128,0.12); border-radius: 12px; padding: 12px; }
+.clipboard-preview { font-size: 14px; }
+.clipboard-pin, .clipboard-empty { font-size: 11px; opacity: 0.65; }
+.clipboard-copy, .clipboard-delete, .clipboard-close { background-image: none; border: none; box-shadow: none; border-radius: 10px; padding: 6px 12px; }
+.clipboard-copy { background-color: #242625; color: #ffffff; }
+.clipboard-delete { background-color: rgba(180,45,45,0.1); color: #a52c2c; }
+.clipboard-close { background-color: transparent; color: #242625; font-size: 20px; padding: 0 6px; }
+.clipboard-copy:hover { background-color: #424441; }
+.clipboard-delete:hover { background-color: rgba(180,45,45,0.2); }

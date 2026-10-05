@@ -1,0 +1,12 @@
+[Unit]
+Description=GlyphOS recoverable file operation journal
+
+[Service]
+ExecStart=/usr/bin/python3 %h/.config/glyphos/daemons/file_undo.py
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=3
+UMask=0077
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,16 @@
+[Unit]
+Description=GlyphOS multi-provider lyrics and MPRIS timing engine
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -u %h/.config/eww/scripts/island-lyrics.py --service
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=3
+NoNewPrivileges=yes
+UMask=0077
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=GlyphOS context, window memory, notification and theme events
+Requires=glyphos-eww.service
+After=graphical-session.target glyphos-eww.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+EnvironmentFile=-%h/.config/glyphos/gemini.env
+ExecStart=/usr/bin/python3 %h/.config/glyphos/daemons/desktop.py
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=5
+KillMode=control-group
+NoNewPrivileges=yes
+UMask=0077
+
+[Install]
+WantedBy=default.target
