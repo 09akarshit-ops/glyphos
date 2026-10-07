@@ -22,7 +22,8 @@
     (button :class "desktop-app" :onclick command :halign "center" :tooltip title
       (image :path "${glyph-assets}/${icon}.svg" :image-width 40 :image-height 40))
     (label :class "desktop-app-label" :text title)))
-(deflisten island-state :initial '{"active":"GlyphOS","next":"Live activities","synced":false,"marquee":false,"lyrics_mode":"none","lyrics_description":"Live activities","current_lyric":"","next_lyric":"","playing":false,"player":"","line":-1,"title":"Nothing Playing","artist":"No Artist","status":"Stopped","progress":0,"pane":0,"reveal_a":true,"reveal_b":false,"a":{"active":"GlyphOS","next":"Live activities"},"b":{"active":"GlyphOS","next":"Live activities"}}'
+(deflisten island-art :initial '{"a":"background-color:#000000;","b":"background-color:#000000;","pane":0,"art":""}' "python3 -u ~/.config/eww/scripts/island-art.py")
+(deflisten island-state :initial '{"active": "GlyphOS", "next": "Live activities", "synced": false, "marquee": false, "lyrics_mode": "none", "lyrics_description": "Live activities", "current_lyric": "", "next_lyric": "", "playing": false, "player": "", "line": -1, "title": "Nothing Playing", "artist": "No Artist", "status": "Stopped", "progress": 0, "pane": 0, "reveal_a": true, "reveal_b": false, "a": {"active": "GlyphOS", "next": "Live activities"}, "b": {"active": "GlyphOS", "next": "Live activities"}, "lyric_animating": false, "lyric_old": "", "lyric_promoted": "", "lyric_following": "", "lyric_old_y": 0, "lyric_active_y": 0, "lyric_next_y": 24, "lyric_old_alpha": 0, "lyric_active_alpha": 1, "lyric_next_alpha": 0.4, "lyric_active_size": 18}'
   "python3 -u ~/.config/eww/scripts/island-lyrics-listen.py")
 (defpoll bar-time :interval "1s" "date '+%I:%M:%S %p' | sed 's/^0//'")
 (defpoll bar-date :interval "30s" "date '+%a %d %b' | tr '[:lower:]' '[:upper:]'")
@@ -38,6 +39,35 @@
           :onclick "~/.config/eww/scripts/taskbar.py click ${window.address}"
           :onrightclick "~/.config/eww/scripts/app-service.py context ${window.app_key} ${window.address}"
           (image :path {window.icon} :image-width 22 :image-height 22))))))
+(defwidget island-pill-widget []
+(eventbox :halign "center" :onclick "python3 ~/.config/eww/scripts/island-action.py"
+      (box :class "island-pill" :width 400 :valign "center"
+        (overlay :height 42
+          (box :height 42 :width 400)
+          (revealer :transition "crossfade" :duration "600ms" :reveal {island-art.pane == 0}
+            (box :class "island-art-layer" :height 42 :width 400 :style {island-art.a}))
+          (revealer :transition "crossfade" :duration "600ms" :reveal {island-art.pane == 1}
+            (box :class "island-art-layer" :height 42 :width 400 :style {island-art.b}))
+          (box :orientation "v" :space-evenly false :spacing 2 :valign "center" :visible {island-state.marquee}
+            (label :class "island-active" :height 22 :text {island-state.active} :limit-width 40 :show-truncated true :tooltip {island-state.title})
+            (label :class "island-next" :visible {island-state.lyrics_mode != "synced" && island-state.lyrics_mode != "plain"} :height 18 :text {island-state.next} :limit-width 40 :show-truncated true))
+          (box :orientation "v" :space-evenly false :spacing 2 :valign "center" :visible {!island-state.marquee && !island-state.lyric_animating}
+            (label :class "island-active" :height 22 :text {island-state.active} :limit-width 40 :show-truncated true :tooltip {island-state.lyrics_description})
+            (label :class "island-next" :visible {island-state.lyrics_mode != "synced" && island-state.lyrics_mode != "plain"} :height 18 :text {island-state.next} :limit-width 40 :show-truncated true))
+          (overlay :height 42 :visible {island-state.lyric_animating}
+            (box :height 42 :width 368)
+            (transform :translate-y "${island-state.lyric_old_y}px" :valign "center"
+              (label :class "island-motion-line" :height 22 :text {island-state.lyric_old} :limit-width 40 :show-truncated true :style "font-size:18px; font-weight:600; color:rgba(255,255,255,${island-state.lyric_old_alpha});"))
+            (transform :translate-y "${island-state.lyric_active_y}px" :valign "center"
+              (label :class "island-motion-line" :height 22 :text {island-state.lyric_promoted} :limit-width 40 :show-truncated true :style "font-size:${island-state.lyric_active_size}px; font-weight:600; color:rgba(255,255,255,${island-state.lyric_active_alpha});")))))))
+(defwindow fullscreen-island
+ :namespace "glyphos-fullscreen-island"
+ :monitor 0
+ :geometry (geometry :x "0px" :y "6px" :width "402px" :height "48px" :anchor "top center")
+ :stacking "overlay"
+ :exclusive false
+ :focusable false
+ (island-pill-widget))
 (defwindow top-bar
   :namespace "glyphos-top-bar"
   :monitor 0
@@ -50,21 +80,7 @@
       (label :text bar-time)
       (label :text bar-date)
       (taskbar))
-(eventbox :halign "center" :onclick "python3 ~/.config/eww/scripts/island-action.py"
-      (box :class "island-pill" :width 360 :valign "center"
-        (overlay :height 42
-          (box :height 42 :width 328)
-          (box :orientation "v" :space-evenly false :spacing 2 :valign "center" :visible {island-state.marquee}
-            (label :class "island-active" :text {island-state.active} :limit-width 40 :show-truncated true :tooltip {island-state.title})
-            (label :class "island-next" :text {island-state.next} :limit-width 40 :show-truncated true))
-          (revealer :transition "slideup" :duration "180ms" :reveal {island-state.reveal_a && !island-state.marquee}
-            (box :orientation "v" :space-evenly false :spacing 2 :valign "center"
-              (label :class "island-active" :text {island-state.a.active} :limit-width 40 :show-truncated true :tooltip {island-state.lyrics_description})
-              (label :class "island-next" :text {island-state.a.next} :limit-width 40 :show-truncated true)))
-          (revealer :transition "slideup" :duration "180ms" :reveal {island-state.reveal_b && !island-state.marquee}
-            (box :orientation "v" :space-evenly false :spacing 2 :valign "center"
-              (label :class "island-active" :text {island-state.b.active} :limit-width 40 :show-truncated true :tooltip {island-state.lyrics_description})
-              (label :class "island-next" :text {island-state.b.next} :limit-width 40 :show-truncated true))))))
+    (island-pill-widget)
     (box :space-evenly false :spacing 10 :halign "end"
       (box :class "bar-status-pill" :space-evenly false :spacing 10 :valign "center"
       (button :class {bar-connectivity.bluetooth ? "bar-button radio-on" : "bar-button indicator-off"} :onclick "eww --no-daemonize open --toggle bluetooth-menu" :tooltip {bar-connectivity.bluetooth ? "Bluetooth on" : "Bluetooth off"}
@@ -85,6 +101,7 @@
   :focusable false
   (image :visible cc-glyph :path "${glyph-assets}/dot-field.svg" :image-width 530 :image-height 235))
 (defvar settings-tab "Display")
+(defpoll settings-display :interval "30s" :initial '{"scale":"100%","scales":["100%","125%","150%","175%","200%"],"mode":"","modes":[],"summary":"Detecting displays…"}' "~/.config/eww/scripts/settings-display.py state")
 (defwindow home
   :namespace "glyphos-home"
   :monitor 0
@@ -94,7 +111,7 @@
   (box :class "desktop-shortcuts" :space-evenly true :spacing 0
     (shortcut :icon "glyphos" :title "App Store" :command "hyprctl dispatch exec /home/nothing_os/.local/bin/glyph-store")
     (shortcut :icon "browser" :title "Browser" :command "brave &")
-    (shortcut :icon "files" :title "files" :command "dolphin &")
+    (shortcut :icon "files" :title "files" :command "~/.local/bin/glyphos-files &")
     (shortcut :icon "settings" :title "settings" :command "eww --no-daemonize open settings-window")
     (shortcut :icon "mail" :title "mail" :command "xdg-open https://mail.google.com &")
     (shortcut :icon "music" :title "music" :command "spotify &")
@@ -109,7 +126,7 @@
   :focusable false
   (box :class "glass-dock" :space-evenly false :spacing 17
     (circle-action :icon "home" :command "hyprctl dispatch exec /home/nothing_os/.local/bin/glyph-store")
-    (circle-action :icon "files" :command "dolphin &")
+    (circle-action :icon "files" :command "~/.local/bin/glyphos-files &")
     (circle-action :icon "chat" :command "brave --app=https://web.whatsapp.com &")
     (circle-action :icon "ai" :command "~/.config/glyphos/scripts/launch-gemini.sh &")
     (circle-action :icon "browser" :command "brave &")
@@ -222,7 +239,7 @@
 (defwindow app-titlebar
   :namespace "glyphos-app-titlebar"
   :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "34px" :anchor "top center")
+  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "46px" :anchor "top center")
   :stacking "fg"
   :exclusive true
   :focusable false
@@ -246,75 +263,64 @@
         (image :path "/home/nothing_os/.config/eww/assets/control-maximize.svg" :image-width 24 :image-height 24))))))
 
 (defwidget glyphos-settings-panel [window-name]
-  (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0 :vexpand true :hexpand true
-    (box :class "settings-titlebar" :space-evenly false :spacing 14
-      (label :class "titlebar-text" :text "Settings" :halign "start" :hexpand true)
-      (traffic-lights :window-name "${window-name}"))
-    (box :class "settings-cards" :orientation "v" :space-evenly false :spacing 8 :vexpand true
-
-      (eventbox :onclick "eww --no-daemonize update settings-tab=System"
-        (box :class "settings-card" :orientation "h" :space-evenly false :spacing 12
-          (label :text "🖥")
-          (box :orientation "v" :spacing 2
-            (label :class "card-title" :text "System" :halign "start")
-            (label :class "card-sub" :text "About, status" :halign "start"))
-          (label :class "card-chevron" :text "›" :hexpand true :halign "end")))
-
-      (eventbox :onclick "eww --no-daemonize update settings-tab=Display"
-        (box :class "settings-card" :orientation "h" :space-evenly false :spacing 12
-          (label :text "☀")
-          (box :orientation "v" :spacing 2
-            (label :class "card-title" :text "Display" :halign "start")
-            (label :class "card-sub" :text "Brightness, timeout" :halign "start"))
-          (label :class "card-chevron" :text "›" :hexpand true :halign "end")))
-
-      (eventbox :onclick "eww --no-daemonize update settings-tab=Sound"
-        (box :class "settings-card" :orientation "h" :space-evenly false :spacing 12
-          (label :text "🔊")
-          (box :orientation "v" :spacing 2
-            (label :class "card-title" :text "Sound" :halign "start")
-            (label :class "card-sub" :text "Volume, output" :halign "start"))
-          (label :class "card-chevron" :text "›" :hexpand true :halign "end")))
-
-      (eventbox :onclick "eww --no-daemonize update settings-tab=Network"
-        (box :class "settings-card" :orientation "h" :space-evenly false :spacing 12
-          (label :text "📶")
-          (box :orientation "v" :spacing 2
-            (label :class "card-title" :text "Network" :halign "start")
-            (label :class "card-sub" :text "WiFi, connections" :halign "start"))
-          (label :class "card-chevron" :text "›" :hexpand true :halign "end")))
-
-      (eventbox :onclick "eww --no-daemonize update settings-tab=Appearance"
-        (box :class "settings-card" :orientation "h" :space-evenly false :spacing 12
-          (label :text "🎨")
-          (box :orientation "v" :spacing 2
-            (label :class "card-title" :text "Appearance" :halign "start")
-            (label :class "card-sub" :text "Theme" :halign "start"))
-          (label :class "card-chevron" :text "›" :hexpand true :halign "end")))
-
-      (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "System"}
-        (label :class "settings-heading" :text "System" :halign "start")
-        (label :class "settings-label" :text "About: GlyphOS Desktop" :halign "start")
-        (label :class "settings-label" :text "Status: Active" :halign "start"))
-      (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Display"}
-        (label :class "settings-heading" :text "Display" :halign "start")
-        (label :class "settings-label" :text "Brightness" :halign "start")
-        (scale :min 0 :max 100 :value 70 :onchange "brightnessctl set {}\%"))
-      (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Sound"}
-        (label :class "settings-heading" :text "Sound" :halign "start")
-        (label :class "settings-label" :text "Volume" :halign "start")
-        (scale :min 0 :max 100 :value 65 :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"))
-      (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Network"}
-        (label :class "settings-heading" :text "Network" :halign "start")
-        (label :class "settings-label" :text "Honda_5G - Connected" :halign "start"))
-      (box :class "settings-detail" :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Appearance"}
-        (label :class "settings-heading" :text "Appearance" :halign "start")
-        (label :class "settings-label" :text "Theme: GlyphOS Light" :halign "start")))))
+ (box :class "gs-window" :orientation "v" :space-evenly false
+  (box :class "gs-titlebar" :space-evenly false :spacing 14
+   (label :text "☰") (label :text "Glyph Control Center" :hexpand true :halign "start")
+   (button :class "gs-control" :onclick "~/.config/eww/scripts/window-management.py panel minimize ${window-name}" "−")
+   (button :class "gs-control" :onclick "~/.config/eww/scripts/window-management.py panel maximize ${window-name}" "□")
+   (button :class "gs-control" :onclick "~/.config/eww/scripts/window-management.py panel close ${window-name}" "×"))
+  (box :space-evenly false :vexpand true
+   (box :class "gs-sidebar" :width 244 :orientation "v" :space-evenly false
+    (label :class "gs-brand" :text "GLYPH CONTROL CENTER" :halign "start")
+    (button :class {settings-tab == "System" || (settings-tab == "Display" && "System" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Display'" (box :space-evenly false :spacing 12 (image :path "assets/settings-monitor.svg" :image-width 18 :image-height 18) (label :text "System" :halign "start")))
+(button :class {settings-tab == "Devices" || (settings-tab == "Display" && "Devices" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Devices'" (box :space-evenly false :spacing 12 (image :path "assets/settings-devices.svg" :image-width 18 :image-height 18) (label :text "Devices" :halign "start")))
+(button :class {settings-tab == "Network & Mesh" || (settings-tab == "Display" && "Network & Mesh" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Network & Mesh'" (box :space-evenly false :spacing 12 (image :path "assets/settings-network.svg" :image-width 18 :image-height 18) (label :text "Network & Mesh" :halign "start")))
+(button :class {settings-tab == "Personalization" || (settings-tab == "Display" && "Personalization" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Personalization'" (box :space-evenly false :spacing 12 (image :path "assets/settings-palette.svg" :image-width 18 :image-height 18) (label :text "Personalization" :halign "start")))
+(button :class {settings-tab == "Apps" || (settings-tab == "Display" && "Apps" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Apps'" (box :space-evenly false :spacing 12 (image :path "assets/settings-apps.svg" :image-width 18 :image-height 18) (label :text "Apps" :halign "start")))
+(button :class {settings-tab == "Accounts" || (settings-tab == "Display" && "Accounts" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Accounts'" (box :space-evenly false :spacing 12 (image :path "assets/settings-account.svg" :image-width 18 :image-height 18) (label :text "Accounts" :halign "start")))
+(button :class {settings-tab == "Time & Language" || (settings-tab == "Display" && "Time & Language" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Time & Language'" (box :space-evenly false :spacing 12 (image :path "assets/settings-language.svg" :image-width 18 :image-height 18) (label :text "Time & Language" :halign "start")))
+(button :class {settings-tab == "Gaming" || (settings-tab == "Display" && "Gaming" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Gaming'" (box :space-evenly false :spacing 12 (image :path "assets/settings-game.svg" :image-width 18 :image-height 18) (label :text "Gaming" :halign "start")))
+(button :class {settings-tab == "Accessibility" || (settings-tab == "Display" && "Accessibility" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Accessibility'" (box :space-evenly false :spacing 12 (image :path "assets/settings-accessibility.svg" :image-width 18 :image-height 18) (label :text "Accessibility" :halign "start")))
+(button :class {settings-tab == "Privacy & Security" || (settings-tab == "Display" && "Privacy & Security" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='Privacy & Security'" (box :space-evenly false :spacing 12 (image :path "assets/settings-shield.svg" :image-width 18 :image-height 18) (label :text "Privacy & Security" :halign "start")))
+(button :class {settings-tab == "GLYPH Update" || (settings-tab == "Display" && "GLYPH Update" == "System") ? "gs-nav selected" : "gs-nav"} :onclick "eww --no-daemonize update settings-tab='GLYPH Update'" (box :space-evenly false :spacing 12 (image :path "assets/settings-update.svg" :image-width 18 :image-height 18) (label :text "GLYPH Update" :halign "start")))
+    (box :vexpand true)
+    (box :class "gs-footer" :space-evenly false :spacing 12
+     (box :orientation "v" :space-evenly false (label :text "GLYPH OS" :halign "start") (label :class "gs-version" :text "V1.0.0 Alpha" :halign "start"))
+     (button :onclick "eww --no-daemonize update settings-tab='GLYPH Update'" :hexpand true :halign "start" "GLYPH Update") (label :text "●" :class "gs-status")))
+   (scroll :vscroll true :hscroll false :hexpand true
+    (box :class "gs-content" :orientation "v" :space-evenly false :spacing 4
+     (label :class "gs-heading" :text {settings-tab == "Display" ? "SYSTEM  ›  DISPLAY" : settings-tab} :halign "start")
+     (box :orientation "v" :space-evenly false :spacing 4 :visible {settings-tab == "Display"}
+      (box :class "gs-row" :space-evenly false :spacing 10
+       (label :text "☼" :class "gs-icon") (label :text "Brightness" :hexpand true :halign "start")
+       (scale :class "gs-slider" :width 155 :min 1 :max 100 :value cc-brightness :onchange "~/.config/eww/scripts/control-center.py brightness {}") (label :text "${cc-brightness}%" :width 38))
+      (box :class "gs-row" :space-evenly false :spacing 10 (label :text "◉") (label :text "Color profile" :hexpand true :halign "start") (label :class "gs-value" :text "sRGB (Default)" :tooltip "Default color space; ICC profile configuration is not installed."))
+      (label :class "gs-section" :text "SCALE & LAYOUT" :halign "start")
+      (box :class "gs-row" :space-evenly false
+       (box :orientation "v" :space-evenly false :hexpand true (label :text "Scale" :halign "start") (label :class "gs-sub" :text "Select display using your current settings" :halign "start"))
+       (overlay :width 152
+        (combo-box-text :class "gs-value" :items {settings-display.scales} :onchange "~/.config/eww/scripts/settings-display.py scale '{}'" :timeout "5s")
+        (label :class "gs-choice-label" :text {settings-display.scale} :halign "start")))
+      (box :class "gs-row" :space-evenly false
+       (box :orientation "v" :space-evenly false :hexpand true (label :text "Display resolution" :halign "start") (label :class "gs-sub" :text "Select a display mode supported by this monitor" :halign "start"))
+       (overlay :width 152
+        (combo-box-text :class "gs-value" :items {settings-display.modes} :onchange "~/.config/eww/scripts/settings-display.py mode '{}'" :timeout "5s")
+        (label :class "gs-choice-label" :text {settings-display.mode} :halign "start")))
+      (box :class "gs-multiple" :orientation "v" :space-evenly false
+       (box :class "gs-row" :space-evenly false (label :text "Multiple displays" :hexpand true :halign "start") (label :text "⌃"))
+       (label :class "gs-display-info" :text {settings-display.summary} :halign "start"))
+      (label :class "gs-help" :text "Use the controls above to configure your current display." :halign "start")
+      (button :class "gs-link" :onclick "~/.config/eww/scripts/settings-display.py advanced" :halign "start" "Advanced display settings")
+      (button :class "gs-link" :onclick "~/.config/eww/scripts/settings-display.py graphics" :halign "start" "Graphics settings"))
+     (box :orientation "v" :space-evenly false :spacing 12 :visible {settings-tab != "Display"}
+      (label :class "gs-description" :text {settings-tab == "GLYPH Update" ? "GLYPH OS · Version 1.0.0 Alpha
+Review available system updates before installing." : "Manage your ${settings-tab} settings."} :halign "start" :wrap true)
+      (button :class "gs-row" :onclick "~/.config/eww/scripts/settings-display.py section '${settings-tab}'" :halign "start" (label :text {settings-tab == "GLYPH Update" ? "Check for updates" : "Open ${settings-tab} controls"}))) )))))
 
 (defwindow settings-window
   :namespace "glyphos-settings"
   :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "620px" :height "480px" :anchor "center")
+  :geometry (geometry :x "0px" :y "0px" :width "720px" :height "488px" :anchor "center")
   :stacking "overlay"
   :focusable false
   (glyphos-settings-panel :window-name "settings-window"))
@@ -322,7 +328,7 @@
 (defwindow settings-app
   :namespace "glyphos-settings-app"
   :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "620px" :height "480px" :anchor "center")
+  :geometry (geometry :x "0px" :y "0px" :width "720px" :height "488px" :anchor "center")
   :stacking "overlay"
   :focusable false
   (glyphos-settings-panel :window-name "settings-app"))
@@ -333,43 +339,7 @@
   :geometry (geometry :x "0px" :y "0px" :y "-72px" :width "100%" :height "100%" :anchor "top left")
   :stacking "overlay"
   :focusable false
-  (box :class "settings-window" :orientation "v" :space-evenly false :spacing 0 :vexpand true :hexpand true
-    (box :class "settings-titlebar" :space-evenly false :spacing 14
-      (label :class "titlebar-text" :text "Settings | System / General" :halign "start" :hexpand true)
-      (traffic-lights :window-name "settings-app-max"))
-    (box :orientation "h" :space-evenly false :spacing 0 :vexpand true
-      (box :class "settings-sidebar" :orientation "v" :space-evenly false :spacing 8
-        (eventbox :onclick "eww --no-daemonize update settings-tab=System"
-          (label :class {settings-tab == "System" ? "settings-sidebar-item active" : "settings-sidebar-item"} :text "System" :halign "start"))
-        (eventbox :onclick "eww --no-daemonize update settings-tab=Display"
-          (label :class {settings-tab == "Display" ? "settings-sidebar-item active" : "settings-sidebar-item"} :text "Display" :halign "start"))
-        (eventbox :onclick "eww --no-daemonize update settings-tab=Sound"
-          (label :class {settings-tab == "Sound" ? "settings-sidebar-item active" : "settings-sidebar-item"} :text "Sound" :halign "start"))
-        (eventbox :onclick "eww --no-daemonize update settings-tab=Network"
-          (label :class {settings-tab == "Network" ? "settings-sidebar-item active" : "settings-sidebar-item"} :text "Network" :halign "start"))
-        (eventbox :onclick "eww --no-daemonize update settings-tab=Appearance"
-          (label :class {settings-tab == "Appearance" ? "settings-sidebar-item active" : "settings-sidebar-item"} :text "Appearance" :halign "start")))
-      (box :class "settings-content" :orientation "v" :space-evenly false :spacing 10 :vexpand true :hexpand true
-        (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "System"}
-          (label :class "settings-heading" :text "System" :halign "start")
-          (label :class "settings-label" :text "About Phone: GlyphOS Desktop" :halign "start")
-          (label :class "settings-label" :text "Status: Active" :halign "start"))
-        (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Display"}
-          (label :class "settings-heading" :text "Display" :halign "start")
-          (label :class "settings-label" :text "Brightness" :halign "start")
-          (scale :min 0 :max 100 :value 70 :onchange "brightnessctl set {}\%")
-          (label :class "settings-label" :text "Screen Time-out: 1 Minute" :halign "start"))
-        (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Sound"}
-          (label :class "settings-heading" :text "Sound" :halign "start")
-          (label :class "settings-label" :text "Volume" :halign "start")
-          (scale :min 0 :max 100 :value 65 :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"))
-        (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Network"}
-          (label :class "settings-heading" :text "Network" :halign "start")
-          (label :class "settings-label" :text "Honda_5G - Connected" :halign "start"))
-        (box :orientation "v" :space-evenly false :spacing 10 :visible {settings-tab == "Appearance"}
-          (label :class "settings-heading" :text "Appearance" :halign "start")
-          (label :class "settings-label" :text "Theme: GlyphOS Light" :halign "start"))))))
-
+  (glyphos-settings-panel :window-name "settings-app-max"))
 
 (defwindow nowplaying
   :namespace "glyphos-nowplaying"
@@ -377,6 +347,12 @@
   :geometry (geometry :x "0px" :y "105px" :width "380px" :height "180px" :anchor "bottom center")
   :stacking "bottom"
   :focusable false
+  (overlay :class "nowplaying-art" :height 180 :width 380
+    (box :height 180 :width 380)
+    (revealer :transition "crossfade" :duration "600ms" :reveal {island-art.pane == 0}
+      (box :class "nowplaying-art-layer" :height 180 :width 380 :style {island-art.a}))
+    (revealer :transition "crossfade" :duration "600ms" :reveal {island-art.pane == 1}
+      (box :class "nowplaying-art-layer" :height 180 :width 380 :style {island-art.b}))
   (box :class "music-card dock-media" :orientation "v" :space-evenly false :spacing 6
     (label :class "music-heading" :text "Now Playing" :halign "start")
     (label :class "music-text" :text {island-state.title} :halign "start" :limit-width 38)
@@ -384,11 +360,11 @@
     (scale :class "music-progress" :min 0 :max 100 :value {island-state.progress} :onchange "~/.config/eww/scripts/media.py seek {}")
     (box :class "music-controls" :space-evenly false :spacing 18 :halign "center"
       (button :class "transport" :onclick "playerctl previous" :tooltip "Previous track"
-        (image :path "${glyph-assets}/previous-dark.svg" :image-width 24 :image-height 24))
+        (image :path "${glyph-assets}/previous.svg" :image-width 24 :image-height 24))
       (button :class "transport-main" :onclick "playerctl play-pause" :tooltip "Play / pause"
         (image :path {island-state.status == "Playing" ? "${glyph-assets}/pause.svg" : "${glyph-assets}/play.svg"} :image-width 24 :image-height 24))
       (button :class "transport" :onclick "playerctl next" :tooltip "Next track"
-        (image :path "${glyph-assets}/next-dark.svg" :image-width 24 :image-height 24)))))
+        (image :path "${glyph-assets}/next.svg" :image-width 24 :image-height 24))))))
 
 (defvar launcher-query "")
 (defpoll launcher-weather :interval "60s" :initial '{"temperature":"—","location":"Chandigarh","status":"Local weather"}'
@@ -814,3 +790,7 @@
             (box :space-evenly false :spacing 8
               (button :class "clipboard-copy" :timeout "2s" :onclick "python3 /home/nothing_os/.config/eww/scripts/taskbar-action.py clipboard-copy ${entry.key}" "Copy")
               (button :class "clipboard-delete" :timeout "2s" :tooltip {entry.pinned ? "Remove this pinned entry" : "Delete this entry from history"} :onclick "python3 /home/nothing_os/.config/eww/scripts/taskbar-action.py clipboard-delete ${entry.key}" "Delete"))))))))
+
+(include "volume_osd/volume_osd.yuck")
+
+(include "snap_layout/snap_layout.yuck")

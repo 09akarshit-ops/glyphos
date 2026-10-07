@@ -24,6 +24,9 @@ with TIMING.with_suffix('.lock').open('w') as lock:
     current = max(-10000, min(10000, current))
     if command != 'status':
         temporary = TIMING.with_suffix(f'.{os.getpid()}.tmp')
-        temporary.write_text(json.dumps({'offset_ms': current}) + '\n')
+        try: settings = json.loads(TIMING.read_text())
+        except (OSError, ValueError): settings = {}
+        settings['offset_ms'] = current
+        temporary.write_text(json.dumps(settings) + '\n')
         temporary.replace(TIMING)
 print(json.dumps({'offset_ms': current, 'negative_means': 'later'}))

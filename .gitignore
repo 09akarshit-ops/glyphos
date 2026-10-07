@@ -33,3 +33,9 @@ config/eww/config/applications.json
 config/eww/config/pinned_apps.json
 config/eww/config/app-jobs/
 config/glyphos/themes/dark-assets/
+
+*.sock
+
+# Private mobile SSH profiles and keys
+config/glyphos/keys/
+config/glyphos/mesh/phone.json

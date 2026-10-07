@@ -1,0 +1,45 @@
+(defvar snap-reveal false)
+(defvar snap-layout "none")
+(defvar snap-zone -1)
+(defwidget snap-cell [preset zone width height]
+  (box :class {snap-layout == preset && snap-zone == zone ? "snap-cell snap-selected" : "snap-cell"}
+    :width width :height height))
+(defwindow snap-picker [snap-monitor]
+  :namespace "glyphos-snap-picker"
+  :monitor snap-monitor
+  :geometry (geometry :x "0px" :y "12px" :width "720px" :height "150px" :anchor "top center")
+  :stacking "overlay" :exclusive false :focusable false
+  (revealer :reveal snap-reveal :transition "crossfade" :duration "120ms"
+    (box :class "snap-picker-content" :orientation "h" :spacing 18 :space-evenly false
+      (box :class "snap-preset" :orientation "v" :spacing 12 :space-evenly false
+        (box :class "snap-diagram" :space-evenly false
+          (snap-cell :preset "halves" :zone 0 :width 69 :height 76)
+          (snap-cell :preset "halves" :zone 1 :width 69 :height 76)
+        )
+        (label :text "50 / 50"))
+      (box :class "snap-preset" :orientation "v" :spacing 12 :space-evenly false
+        (box :class "snap-diagram" :space-evenly false
+          (snap-cell :preset "thirds" :zone 0 :width 46 :height 76)
+          (snap-cell :preset "thirds" :zone 1 :width 46 :height 76)
+          (snap-cell :preset "thirds" :zone 2 :width 46 :height 76)
+        )
+        (label :text "Three columns"))
+      (box :class "snap-preset" :orientation "v" :spacing 12 :space-evenly false
+        (box :class "snap-diagram" :orientation "v" :space-evenly false
+          (box :space-evenly false
+            (snap-cell :preset "grid" :zone 0 :width 69 :height 38)
+            (snap-cell :preset "grid" :zone 1 :width 69 :height 38)
+          )
+          (box :space-evenly false
+            (snap-cell :preset "grid" :zone 2 :width 69 :height 38)
+            (snap-cell :preset "grid" :zone 3 :width 69 :height 38)
+          )
+        )
+        (label :text "2 × 2 grid"))
+      (box :class "snap-preset" :orientation "v" :spacing 12 :space-evenly false
+        (box :class "snap-diagram" :space-evenly false
+          (snap-cell :preset "sidebar" :zone 0 :width 46 :height 76)
+          (snap-cell :preset "sidebar" :zone 1 :width 92 :height 76)
+        )
+        (label :text "Sidebar + main"))
+    )))

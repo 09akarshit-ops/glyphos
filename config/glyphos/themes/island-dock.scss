@@ -33,3 +33,48 @@
 .desktop-bar { padding: 0 20px; min-height: 50px; }
 .taskbar-center-row .bar-brand { padding: 0; min-height: 30px; }
 .taskbar-center-row .glyphos-brand .launcher-title { font-family: "Ndot 55"; font-size: 19px; }
+
+/* Rounded black Island, with transparent child surfaces. */
+.island-pill, .dynamic-island {
+  background-color: #000000;
+  background-image: none;
+  color: #ffffff;
+  border: 1px solid transparent;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+.island-active { color: #ffffff; }
+.island-next { color: rgba(255,255,255,0.4); }
+
+.island-pill > *, .island-pill overlay, .island-pill revealer { background-color: transparent; background-image: none; border: none; box-shadow: none; }
+
+/* The 50px bar clips exterior shadows into a rectangle. */
+.taskbar-center-row .island-pill, .desktop-bar .island-pill { box-shadow: none; }
+
+.island-motion-line { padding:0; margin:0; background:transparent; }
+
+.desktop-bar .island-pill { padding:2px 0; }
+.island-art-layer { border-radius:24px; background-size:cover; background-position:center; }
+
+.island-active, .island-motion-line { text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.65); }
+
+/* Inset Island depth stays inside the compact layer surface. */
+.desktop-bar .island-pill {
+ box-shadow:inset 0 2px 5px rgba(0,0,0,.42),inset 0 -2px 4px rgba(0,0,0,.22);
+ border:1px solid rgba(0,0,0,.30);
+}
+.island-art-layer {
+ box-shadow:inset 0 2px 5px rgba(0,0,0,.42),inset 0 -2px 4px rgba(0,0,0,.22);
+}
+
+/* Shared artwork and track-change fade for the desktop player card. */
+.nowplaying-art-layer {border-radius:24px; background-size:cover; background-position:center;}
+.nowplaying-art .music-card {background:transparent; margin:0; border-radius:24px; box-shadow:none;}
+.nowplaying-art label {color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.7);}
+.nowplaying-art .music-artist {color:rgba(255,255,255,.85);}
+.nowplaying-art .music-progress trough {background:rgba(0,0,0,.45);}
+.nowplaying-art .music-progress highlight, .nowplaying-art .music-progress slider {background:#ffffff;}
+.nowplaying-art .transport-main {background-color:rgba(0,0,0,.65);}
+
+.fullscreen-island {background:transparent;}
+.fullscreen-island .island-pill {padding:2px 0; background-color:#000000;}

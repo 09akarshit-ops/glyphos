@@ -53,9 +53,9 @@ element selected {{ background-color: #007aff; text-color: #ffffff; }}
     call('gsettings','set','org.gnome.desktop.interface','gtk-theme',gtk,check=False)
     call('gsettings','set','org.gnome.desktop.interface','color-scheme','prefer-dark' if mode=='dark' else 'prefer-light',check=False)
     border='ffffffff' if mode=='dark' else '111111ff'
-    (BASE/'themes/hyprland.conf').write_text('general {\n    col.active_border = rgba('+border+')\n    col.inactive_border = rgba('+('ffffff30' if mode=='dark' else '00000020')+')\n}\n')
+    (BASE/'themes/hyprland.conf').write_text('general {\n    col.active_border = rgba('+border+')\n    col.inactive_border = rgba('+('ffffff66' if mode=='dark' else '11111166')+')\n}\n')
     call('hyprctl','keyword','general:col.active_border','rgba('+border+')',check=False)
-    call('hyprctl','keyword','general:col.inactive_border','rgba('+('ffffff30' if mode=='dark' else '00000020')+')',check=False)
+    call('hyprctl','keyword','general:col.inactive_border','rgba('+('ffffff66' if mode=='dark' else '11111166')+')',check=False)
     # Generate inverted neutral SVG assets in a separate directory.
     assets=EWW/'assets';dest=BASE/'themes/dark-assets';dest.mkdir(exist_ok=True)
     if mode=='dark':

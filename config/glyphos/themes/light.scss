@@ -628,3 +628,113 @@ window.top-bar { margin: 0; padding: 0; }
 .clipboard-close { background-color: transparent; color: #242625; font-size: 20px; padding: 0 6px; }
 .clipboard-copy:hover { background-color: #424441; }
 .clipboard-delete:hover { background-color: rgba(180,45,45,0.2); }
+
+@import "volume_osd/volume_osd.scss";
+
+@import "snap_layout/snap_layout.scss";
+
+/* Keep the two-row taskbar separate from application windows. */
+.native-titlebar.taskbar-center-row { margin-bottom: 12px; padding: 0 20px; min-height: 34px; }
+
+/* Rounded black Island, with transparent child surfaces. */
+.island-pill, .dynamic-island {
+  background-color: #000000;
+  background-image: none;
+  color: #ffffff;
+  border: 1px solid transparent;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+.island-active { color: #ffffff; }
+.island-next { color: rgba(255,255,255,0.4); }
+
+.island-pill > *, .island-pill overlay, .island-pill revealer { background-color: transparent; background-image: none; border: none; box-shadow: none; }
+
+/* The 50px bar clips exterior shadows into a rectangle. */
+.taskbar-center-row .island-pill, .desktop-bar .island-pill { box-shadow: none; }
+
+/* Reference Control Center: compact chrome, navigation and display cards. */
+.gs-window { background: rgba(233,233,228,.94); color:#171b1b; border:1px solid rgba(255,255,255,.75); border-radius:8px; font-family:Inter,"Sans"; font-size:12px; }
+.gs-titlebar {padding:3px 12px; min-height:20px; font-size:10px;}
+.gs-window button {background-image:none; border:none; box-shadow:none; color:#171b1b;}
+.gs-control {background:transparent; padding:0 6px; min-width:14px; font-size:15px;}
+.gs-control:hover {background:rgba(0,0,0,.08);}
+.gs-sidebar {padding:0; border-right:1px solid rgba(80,80,80,.14);}
+.gs-brand {margin:16px 28px; font-size:14px;}
+.gs-nav {margin:1px 28px; padding:6px 10px; min-height:18px; background:transparent; border-radius:4px;}
+.gs-window .gs-nav.selected {background:rgba(140,140,130,.12); border-left:3px solid #287cb5; padding-left:7px;}
+.gs-nav:hover {background:rgba(140,140,130,.16);}
+.gs-footer {border-top:1px solid rgba(80,80,80,.14); padding:8px 6px 4px; font-size:10px;}
+.gs-footer button {background:transparent; padding:0; font-size:12px;}
+.gs-version {font-size:8px;} .gs-status {color:#929c7a;}
+.gs-content {padding:18px 20px 10px;}
+.gs-heading {font-size:17px; margin-bottom:12px;}
+.gs-row {background:rgba(255,255,255,.54); border:1px solid rgba(120,120,105,.17); border-radius:4px; padding:10px 11px; min-height:28px;}
+.gs-value {background:rgba(255,255,255,.55); border:1px solid rgba(100,100,100,.12); border-radius:4px; padding:3px 8px; font-size:11px;}
+.gs-section {margin-top:18px; margin-bottom:3px; font-size:12px;}
+.gs-sub {font-size:10px; color:#606363; margin-top:2px;}
+.gs-multiple {background:rgba(255,255,255,.54); border:1px solid rgba(120,120,105,.17); border-radius:4px;}
+.gs-multiple .gs-row {border:none; border-bottom:1px solid rgba(120,120,105,.17); background:transparent;}
+.gs-display-info {padding:10px 12px; font-size:11px;}
+.gs-help {font-size:10px; color:#606363; margin-top:6px;}
+.gs-window .gs-link {background:transparent; padding:2px 0; color:#245d83; font-size:11px;}
+.gs-icon {font-size:20px;}
+.gs-slider {padding:0;} .gs-slider trough {min-height:3px; background:#ccccca; border:none;}
+.gs-slider highlight {background:#287db5; min-height:3px;}
+.gs-slider slider {background:#287db5; border:2px solid white; border-radius:50%; min-width:8px; min-height:8px; margin:-5px; box-shadow:0 0 1px rgba(0,0,0,.4);}
+.gs-description {margin:12px 0;}
+
+.gs-window, .gs-window label, .gs-window button {font-family:Inter,"Sans"; font-weight:400; font-size:12px;}
+.gs-window {background-color:rgba(242,243,239,.93); background-image:linear-gradient(135deg,rgba(203,222,240,.35),rgba(228,230,225,.1)),linear-gradient(35deg,rgba(205,216,237,.24),rgba(218,242,231,.2));}
+.gs-window .gs-titlebar label {font-size:10px;}
+.gs-window .gs-heading {font-size:17px;}
+.gs-window .gs-brand {font-size:14px;}
+.gs-window .gs-control {font-size:15px;}
+.gs-window .gs-sub, .gs-window .gs-help {font-size:10px;}
+.gs-window .gs-version {font-size:8px;}
+.gs-window .gs-footer label {font-size:10px;}
+.gs-window .gs-choice-label {font-size:11px; margin-left:8px; margin-right:24px;}
+.gs-window combobox {padding:0; min-height:20px;}
+.gs-window combobox button {padding:3px 8px; min-height:16px; background:rgba(255,255,255,.5);}
+.gs-window .gs-icon {font-size:20px;}
+.gs-window .gs-link {font-size:11px;}
+
+.island-motion-line { padding:0; margin:0; background:transparent; }
+
+.desktop-bar .island-pill { padding:2px 0; }
+.island-art-layer { border-radius:24px; background-size:cover; background-position:center; }
+
+.island-active, .island-motion-line { text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.65); }
+
+/* Original soft off-white taskbar; artwork stays inside the Island. */
+.desktop-bar { background-color:rgba(233,233,228,0.92); background-image:none; color:#111111; }
+.native-titlebar.taskbar-center-row { background-color:rgba(233,233,228,0.97); background-image:none; color:#242625; }
+.desktop-bar .island-art-layer { opacity:1; }
+
+/* Inset Island depth stays inside the compact layer surface. */
+.desktop-bar .island-pill {
+ box-shadow:inset 0 2px 5px rgba(0,0,0,.42),inset 0 -2px 4px rgba(0,0,0,.22);
+ border:1px solid rgba(0,0,0,.30);
+}
+.island-art-layer {
+ box-shadow:inset 0 2px 5px rgba(0,0,0,.42),inset 0 -2px 4px rgba(0,0,0,.22);
+}
+
+/* Connectivity glyphs blend into the original taskbar status container. */
+.desktop-bar .bar-status-pill .bar-button,
+.desktop-bar .bar-status-pill .bar-button.radio-on,
+.desktop-bar .bar-status-pill .bar-button:hover {
+ background-color:transparent; background-image:none; border:none; box-shadow:none;
+}
+
+/* Shared artwork and track-change fade for the desktop player card. */
+.nowplaying-art-layer {border-radius:24px; background-size:cover; background-position:center;}
+.nowplaying-art .music-card {background:transparent; margin:0; border-radius:24px; box-shadow:none;}
+.nowplaying-art label {color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.7);}
+.nowplaying-art .music-artist {color:rgba(255,255,255,.85);}
+.nowplaying-art .music-progress trough {background:rgba(0,0,0,.45);}
+.nowplaying-art .music-progress highlight, .nowplaying-art .music-progress slider {background:#ffffff;}
+.nowplaying-art .transport-main {background-color:rgba(0,0,0,.65);}
+
+.fullscreen-island {background:transparent;}
+.fullscreen-island .island-pill {padding:2px 0; background-color:#000000;}

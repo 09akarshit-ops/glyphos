@@ -204,7 +204,7 @@ def main():
         position = state.get('position', 0)
         # Never advance lyrics using an independent timer. If Position queries
         # fail, hold the last measured position until the player responds again.
-        timing_offset = offset_ms()
+        timing_offset = offset_ms(state.get('url', ''))
         adjusted_position = lyric_position(position, timing_offset)
         index = bisect.bisect_right(times, adjusted_position) - 1
         current = rows[index][1] if index >= 0 and rows else ''
@@ -215,7 +215,7 @@ def main():
             next=following or (state.get('artist', '') if active else 'Live activities'),
             marquee=marquee, lookup_pending=pending is not None, retry_delay_seconds=retry_delay,
             synced=lyrics_mode == 'synced', lyrics_mode=lyrics_mode, lyrics_source=lyrics_source,
-            current_lyric=current, next_lyric=following, lyric_count=len(rows),
+            current_lyric=current, next_lyric=following, lyric_count=len(rows), lyrics=rows[:1000],
             lyrics_description='Synchronized lyrics' if lyrics_mode == 'synced' else 'Plain lyrics · approximate timing' if lyrics_mode == 'plain' else 'Looking up lyrics',
             position=round(position), playing=state.get('status') == 'Playing', player=state.get('player', ''),
             lyric_offset_ms=timing_offset, position_poll_ms=100,

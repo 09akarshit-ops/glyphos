@@ -137,3 +137,83 @@ test track; it is not enabled at startup and is not a general volume policy.
 Run the repository's `tests/lyrics_provider_test.py` and `tests/lyrics_web_test.py`
 for offline provider/parser fixtures. Existing live-island diagnostics affect the
 running desktop and should be reviewed before use.
+
+## Interactive volume OSD
+
+Volume Up/Down changes the default sink by 5%, capped at 100%. Mute toggles once
+on press; holding it for three seconds opens pavucontrol (or qpwgraph fallback).
+Releasing early cancels the hold. The non-focusable Eww glass card includes a live
+slider and mute button. It fades after two seconds; hover pauses hiding and leaving
+restarts the countdown. One lazy IPC worker blocks when idle and samples volume
+only while visible. Slider writes are coalesced at 25 ms intervals.
+
+Manual trigger: `~/.config/glyphos/scripts/volume_osd.sh show`.
+Widget/style definitions live in `config/eww/volume_osd/` and are included by the
+main Eww configuration. Install pavucontrol for the mixer command.
+
+## Drag-and-snap layouts
+
+Hold Super and drag a window to the top-center edge, then release over a destination
+in the picker. Normal titlebar drags also activate it when window movement is detected.
+Presets: halves, thirds, quadrants and a one-third sidebar. Super+Escape cancels.
+The current monitor's reserved bars, scale and origin determine target bounds.
+
+Snapping converts participating workspace windows to floating geometry. Other normal
+windows on that monitor/workspace fill remaining cells; excess windows subdivide those
+cells vertically. Empty cells remain if there are insufficient windows. True fullscreen,
+pinned, hidden and special-workspace windows are excluded. Application minimum sizes
+can prevent exact placement; arbitrary apps and multi-monitor drags need manual checks.
+
+`glyphos-snap.service` listens to the Hyprland event socket, plus non-consuming mouse
+press/release hooks because socket2 does not publish a full drag lifecycle. Direct IPC
+cursor sampling runs only while a drag is armed; the worker blocks when idle. Preview
+animation uses 16 ms GTK ticks over 180 ms, with an empty input region and no keyboard
+grab. This targets roughly 60 FPS, which depends on compositor/hardware performance.
+
+The Eww picker is under `config/eww/snap_layout/`; the input-transparent native GTK
+preview is rendered by `snap_engine.py`. A single last-layout snapshot is stored privately
+at `~/.local/state/glyphos/snap/last-layout.json`. It is a record, not an automatic undo.
+Offline geometry checks: `python3 tests/snap_layout_test.py`.
+
+The two-row taskbar reserves an additional 12 px of transparent space beneath the
+controls. Window borders remain visible in both themes, and saved floating geometry
+is clamped below current monitor reservations. Use Super + left-drag anywhere inside
+a window; the taskbar controls themselves are not a draggable application titlebar.
+
+## GlyphOS Files and phone storage
+
+Super+E and the desktop/dock Files buttons open the GTK4 file manager. Its layout
+follows the supplied reference: compact window controls, back/forward/up buttons,
+a pill-shaped breadcrumb and search field, outline sidebar icons, five file columns
+(Name, Size, Modified, Permissions, Type), and live disk/application-memory status.
+Data uses standard sans-serif typography; breadcrumbs and capacity tags use Ndot 55.
+No music panel appears by default. Space opens an explicit selected-file preview.
+
+Directory scans, fd searches and bounded image/text reads run off the GTK thread.
+Rows are virtualized and inserted in batches. `/` focuses search; Ctrl+L opens a
+path prompt; Ctrl+H toggles hidden entries. Right-click exposes Open, Preview,
+New Folder, Copy, Paste, Rename and Trash; F2 renames, Delete prompts before trash.
+Copy/paste refuses overwrites. Local Share opens the user's Public folder, not a
+network server. Audio previews require an available GTK media backend and do not
+autoplay. Cairo rendering avoids this machine's incomplete Vulkan support; no
+60 FPS guarantee or fabricated FPS number is displayed.
+
+`glyphos-phone-mesh.service` delegates UDP discovery (1714–1764), TLS pairing and
+SFTP to KDE Connect. Install KDE Connect on the phone, enable filesystem sharing,
+and install `sshfs` on the PC. Backend verification details appear in the Pair
+Device dialog; pair requests require confirmation on the phone, and incoming
+requests require explicit acceptance. A custom six-digit PIN on both devices is
+not implemented by this bridge. Backend verification-key format and RSA/EC key
+choice are retained; existing credentials are never replaced.
+
+Successfully paired certificates are pinned as SHA-256 fingerprints in private
+local state. Unknown/unpaired or changed certificates cannot automatically mount.
+The storage Kill Switch persists an auto-mount pause and cancels in-flight mount
+requests before unmounting. Connect Storage explicitly resumes mounting. This is
+a storage disconnect, not a global KDE Connect/network kill switch. Transport and
+SSH host-verification behavior remain KDE Connect's implementation.
+
+Trust, mount paths and device names are runtime data excluded from Git. On this
+machine discovery was verified with zero devices; real phone pairing/mounting
+still requires a phone and installation of the missing sshfs package.
+Offline checks: `python3 tests/file_manager_mesh_test.py`.

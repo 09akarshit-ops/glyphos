@@ -1,0 +1,38 @@
+window.glyphos-files { background-color: rgba(233,233,228,0.92); color: #151515; border: 1px solid rgba(255,255,255,0.9); border-radius: 12px; }
+.glyphos-files { font-family: Inter, "SF Pro Display", sans-serif; font-size: 14px; }
+.glyphos-files button { color: #151515; background: transparent; box-shadow: none; border: none; border-radius: 8px; padding: 5px 8px; }
+.glyphos-files button:hover { background-color: rgba(17,17,17,0.08); }
+.files-header { padding: 3px 8px 0; min-height: 28px; }
+.window-control { min-width: 20px; min-height: 22px; padding: 0 5px; font-size: 19px; }
+.files-navigation { padding: 4px 10px 7px; border-bottom: 1px solid rgba(17,17,17,0.16); }
+.nav-button { min-width: 24px; font-size: 29px; padding: 0 6px; }
+.glyphos-files image { min-width: 23px; min-height: 23px; }
+.path-pill { background-color: rgba(17,17,17,0.10); border-radius: 18px; padding: 2px 11px; }
+.dot-breadcrumb, .dot-capacity { font-family: "Ndot 55", monospace; }
+.dot-breadcrumb { font-size: 19px; }
+.dot-capacity { font-size: 12px; }
+.glyphos-files searchentry { min-height: 25px; background-color: rgba(17,17,17,0.09); border-radius: 18px; border: none; padding: 0 10px; color: #151515; }
+.glyphos-files searchentry text, .glyphos-files entry text { color: #151515; caret-color: #151515; }
+.files-sidebar { padding: 2px 12px 12px; border-right: 1px solid rgba(17,17,17,0.15); background: transparent; }
+.sidebar-heading { font-size: 14px; margin: 7px 3px 3px; color: #111111; }
+.sidebar-place { padding: 5px 3px; }
+.files-main { padding: 0 9px 0; }
+.glyphos-files columnview, .glyphos-files columnview listview, .glyphos-files columnview row { background-color: transparent; color: #151515; }
+.glyphos-files columnview header button { border-radius: 0; padding: 3px 9px; min-height: 22px; background: transparent; border-right: 1px solid rgba(17,17,17,0.12); color: #151515; font-weight: normal; }
+.glyphos-files columnview row { border-radius: 9px; min-height: 34px; }
+.glyphos-files columnview row:selected { background-color: rgba(17,17,17,0.11); }
+.glyphos-files columnview row:hover { background-color: rgba(17,17,17,0.055); }
+.file-cell { padding: 5px 9px; color: #151515; }
+.name-cell { padding-left: 5px; }
+.name-cell .file-cell { padding-left: 0; }
+.glyphos-files scrollbar { background: transparent; }
+.glyphos-files scrollbar slider { min-width: 3px; min-height: 24px; background-color: rgba(17,17,17,0.18); border-radius: 4px; }
+.sidebar-note, .device-status { font-size: 11px; color: #555555; }
+.phone-card { padding: 4px 3px; }
+.files-dialog { padding: 20px; }
+.dot-section { font-family: "Ndot 55", monospace; font-size: 18px; }
+.glyphos-files textview text { background-color: transparent; color: #151515; }
+
+.mobile-connected { color:#448a51; }
+.phone-card progressbar trough { min-height:4px; background:rgba(0,0,0,.1); border-radius:4px; }
+.phone-card progressbar progress { min-height:4px; background:#448a51; border-radius:4px; }

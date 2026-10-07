@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freedesktop.impl.portal.desktop.glyphos
+Exec=/usr/bin/python3 /home/nothing_os/.config/glyphos/scripts/file_portal.py
+SystemdService=glyphos-file-portal.service

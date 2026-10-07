@@ -41,6 +41,8 @@ Arch Linux (or an Arch-based distro), plus a set of custom eww widgets that act 
 
 ## Screenshots
 
+[Latest completed desktop screenshots — 8 October 2026](screenshots/day-08-2026-10-08/README.md).
+
 Build history and feature screenshots are organized by date in [`screenshots/`](./screenshots) —
 each folder is one day of development, showing the project's actual progression from a broken config
 to a working desktop.

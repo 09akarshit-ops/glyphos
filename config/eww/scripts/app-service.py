@@ -235,7 +235,7 @@ def dismiss_context():
   eww('close','taskbar-context')
 
 def context_icon(icon):
- classes={'files':'org.kde.dolphin','browser':'brave','chat':'brave','ai':'brave','home':'app-store.py'}
+ classes={'files':'org.glyphos.Files','browser':'brave','chat':'brave','ai':'brave','home':'app-store.py'}
  value=resolve({'class':classes.get(icon,'')})
  context(value['key'] if value else 'unsupported')
 

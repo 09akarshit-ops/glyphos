@@ -1,0 +1,12 @@
+[Unit]
+Description=GlyphOS Explorer file chooser portal
+After=graphical-session.target
+PartOf=graphical-session.target
+[Service]
+Type=dbus
+BusName=org.freedesktop.impl.portal.desktop.glyphos
+ExecStart=/usr/bin/python3 %h/.config/glyphos/scripts/file_portal.py
+Restart=on-failure
+RestartSec=2
+[Install]
+WantedBy=default.target

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=GlyphOS Files
+Comment=Browse local files and paired phone storage
+Exec=glyphos-files %F
+Icon=system-file-manager
+Terminal=false
+Categories=System;FileTools;FileManager;
+MimeType=inode/directory;
+StartupWMClass=org.glyphos.Files

@@ -30,7 +30,9 @@ class Memory:
         monitors=hypr('monitors'); monitor=next((m for m in monitors if m['id']==client['monitor']),monitors[0])
         width=min(saved['width'],int(monitor['width']/monitor['scale']));height=min(saved['height'],int(monitor['height']/monitor['scale']))
         x=max(monitor['x'],min(saved['x'],int(monitor['x']+monitor['width']/monitor['scale']-width)))
-        y=max(monitor['y']+36,min(saved['y'],int(monitor['y']+monitor['height']/monitor['scale']-height)))
+        top=monitor['y']+monitor.get('reserved',[0,0,0,0])[1]+2
+        height=min(height,int(monitor['height']/monitor['scale'])-sum(monitor.get('reserved',[0,0,0,0])[1::2])-4)
+        y=max(top,min(saved['y'],int(monitor['y']+monitor['height']/monitor['scale']-monitor.get('reserved',[0,0,0,0])[3]-height-2)))
         if saved.get('workspace'):
             call('hyprctl','dispatch','movetoworkspacesilent',f"{saved['workspace']},address:{address}",check=False)
         call('hyprctl','dispatch','resizewindowpixel',f'exact {width} {height},address:{address}',check=False)

@@ -9,13 +9,14 @@ sys.path.insert(0,str(Path.home()/'.config/glyphos/scripts'))
 from common import HOME, BASE, STATE, call, hypr, read, write, update
 from window_memory import Memory
 from live_island import Island
+from fullscreen_island import FullscreenIsland
 from actions import radio_rows
 from theme import apply as theme
 POOL=concurrent.futures.ThreadPoolExecutor(max_workers=3)
 class Desktop:
     def __init__(self):
         self.running=set();self.socket=None;self.buffer=b'';self.focused=False;self.notification_rows=read(STATE/'notification-events.json',[])[-100:]
-        self.island=Island(self.submit);self.memory=Memory();self.last=None;self.monitor=None;self.rofi_seen={};self.rofi_process=False;self.last_taskbar=None;self.last_active=None;self.ticks=0;self.context_dirty=True;self.last_context=None;self.context_sent=0;self.taskbar_sent=0
+        self.fullscreen_router=FullscreenIsland();self.fullscreen_dirty=True;self.island=Island(self.submit);self.memory=Memory();self.last=None;self.monitor=None;self.rofi_seen={};self.rofi_process=False;self.last_taskbar=None;self.last_active=None;self.ticks=0;self.context_dirty=True;self.last_context=None;self.context_sent=0;self.taskbar_sent=0
         self.connect_socket()
         self.notifications()
         GLib.timeout_add_seconds(1,self.tick)
@@ -57,6 +58,7 @@ class Desktop:
         lines=self.buffer.split(b'\n');self.buffer=lines.pop()
         for line in lines:
             event,_,payload=line.decode(errors='replace').partition('>>')
+            if event in ('fullscreen','activewindow','activewindowv2','workspace','workspacev2','focusedmon','closewindow'):self.fullscreen_dirty=True
             if event in ('activewindow','activewindowv2','windowtitle','windowtitlev2'):self.context_dirty=True
             if event=='openwindow':
                 address='0x'+payload.split(',')[0].removeprefix('0x');self.memory.opened(address)
@@ -79,6 +81,9 @@ class Desktop:
             if dismiss:call('eww','close',*sorted(dismiss),check=False)
         self.last_active=active.get('address')
     def tick(self):
+        if self.fullscreen_dirty and 'fullscreen-island' not in self.running:
+            self.fullscreen_dirty=False;self.submit('fullscreen-island',self.fullscreen_router.apply)
+        elif self.fullscreen_router.enabled and self.ticks%5==0:self.submit('fullscreen-island',self.fullscreen_router.apply)
         self.ticks+=1
         self.submit('island',self.island.collect)
         if self.socket is None:self.connect_socket()

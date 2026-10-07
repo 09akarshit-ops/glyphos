@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=GlyphOS File Explorer
+Comment=Browse folders, images and media with GlyphOS
+Exec=glyphos-files %U
+Icon=system-file-manager
+Terminal=false
+Categories=System;FileManager;
+MimeType=inode/directory;x-scheme-handler/file;image/jpeg;image/png;image/webp;image/gif;audio/mpeg;audio/flac;audio/x-wav;video/mp4;video/x-matroska;

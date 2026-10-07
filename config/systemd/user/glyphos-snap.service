@@ -1,0 +1,15 @@
+[Unit]
+Description=GlyphOS drag-and-snap picker and input-transparent preview
+After=graphical-session.target glyphos-eww.service
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u %h/.config/glyphos/scripts/snap_engine.py --daemon
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=3
+NoNewPrivileges=yes
+UMask=0077
+
+[Install]
+WantedBy=default.target

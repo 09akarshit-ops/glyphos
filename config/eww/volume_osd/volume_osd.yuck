@@ -1,0 +1,21 @@
+(defvar osd-volume 20)
+(defvar osd-muted false)
+(defvar osd-icon "󰕿")
+(defvar osd-reveal false)
+(defwindow volume-osd
+  :namespace "glyphos-volume-osd"
+  :monitor 0
+  :geometry (geometry :x "32px" :y "100px" :width "340px" :height "100px" :anchor "bottom right")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  (eventbox :onhover "~/.config/glyphos/scripts/volume_osd.sh hover"
+    :onhoverlost "~/.config/glyphos/scripts/volume_osd.sh leave"
+    (revealer :reveal osd-reveal :transition "crossfade" :duration "180ms"
+      (box :class "volume-osd-card" :orientation "v" :space-evenly false :spacing 12
+        (box :space-evenly false :spacing 12
+          (button :class "volume-osd-icon" :onclick "~/.config/glyphos/scripts/volume_osd.sh mute" (label :text osd-icon))
+          (label :class "volume-osd-heading" :hexpand true :halign "start" :text {osd-muted ? "Muted" : "Volume"})
+          (label :class "volume-osd-percent" :text "${osd-volume}%"))
+        (scale :class "volume-osd-slider" :orientation "h" :min 0 :max 100 :round-digits 0
+          :value osd-volume :timeout "1s" :onchange "~/.config/glyphos/scripts/volume_osd.sh set {}")))))

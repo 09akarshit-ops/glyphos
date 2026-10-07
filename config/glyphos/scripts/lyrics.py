@@ -14,11 +14,21 @@ LYRIC_OFFSET_MS = -500  # Negative offsets delay lyric changes.
 TIMING = Path.home() / '.config/glyphos/lyrics-timing.json'
 
 
-def offset_ms():
+def recording_key(url):
+    parsed = urlparse(url)
+    return str(Path(unquote(parsed.path))) if parsed.scheme == 'file' else url
+
+
+def offset_ms(url=''):
     try:
-        value = json.loads(TIMING.read_text())['offset_ms']
-        return max(-10000, min(10000, int(value)))
-    except (OSError, ValueError, KeyError, TypeError):
+        settings = json.loads(TIMING.read_text())
+    except (OSError, ValueError):
+        settings = {}
+    try:
+        base = max(-10000, min(10000, int(settings.get('offset_ms', LYRIC_OFFSET_MS))))
+        extra = int(settings.get('recording_offsets_ms', {}).get(recording_key(url), 0)) if url else 0
+        return max(-130000, min(130000, base + max(-120000, min(120000, extra))))
+    except (ValueError, TypeError, AttributeError):
         return LYRIC_OFFSET_MS
 
 
@@ -34,6 +44,7 @@ def clean(value):
     value = re.sub(r'\s*\b(?:feat\.?|ft\.?|prod\.?\s*(?:by)?)\s+[^|]*', '', value, flags=re.I)
     value = re.sub(r'\b(?:latest|new)\s+(?:punjabi\s+)?songs?(?:\s+\d{4})?.*$', '', value, flags=re.I)
     value = re.sub(r'\s*[-–]\s*(?:topic|vevo|official channel)\s*$', '', value, flags=re.I)
+    value = re.sub(r'\bPunjabi\s+Songs?(?:\s+\d{4})?.*$', '', value, flags=re.I)
     value = re.sub(r'\s*(?:VEVO|Official YouTube Channel|Official Channel)\s*$', '', value, flags=re.I)
     value = re.sub(r'\bAudio\b|\.(mp3|mp4|m4a|flac|ogg|opus|wav|webm)\b', '', value, flags=re.I)
     return re.sub(r'\s+', ' ', value).strip(' -–_|')
@@ -49,7 +60,7 @@ def normalize(title, artist='', album='', url=''):
     local = unquote(urlparse(url).path) if urlparse(url).scheme == 'file' else ''
     raw = title.strip() or (Path(local).stem if local else '')
     # Common download filename: SONG (Official Video) ARTIST Latest Songs 2025.
-    marker = re.search(r'[\[(]\s*official\s+(?:music\s+)?(?:video|audio)\s*[\])]', raw, re.I)
+    marker = re.search(r'[\[(]\s*(?:official\s*)?(?:music\s+)?(?:video|audio)\s*[\])]', raw, re.I)
     if not artist.strip() and marker:
         before, after = clean(raw[:marker.start()]), clean(raw[marker.end():])
         if before and after:
