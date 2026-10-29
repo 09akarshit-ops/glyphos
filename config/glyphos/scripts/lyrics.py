@@ -69,7 +69,10 @@ def normalize(title, artist='', album='', url=''):
     # the artist segment and must not consume the song on the other side.
     if re.search(r'\s[-–]\s', raw):
         left, right = re.split(r'\s[-–]\s', raw, maxsplit=1)
-        if not artist.strip() or identity(clean(left)) == identity(clean(artist)):
+        if not artist.strip() and re.search(r'(?i)\b(?:ft\.?|feat\.?|featuring)\s+',right):
+            # Download form: SONG - Artist Ft. Guest (untagged local media).
+            raw, artist = left, right
+        elif not artist.strip() or identity(clean(left)) == identity(clean(artist)):
             raw, artist = right, artist or left
     title, artist = clean(raw), clean(artist)
     if '|' in title:

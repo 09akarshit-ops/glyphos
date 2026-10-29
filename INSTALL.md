@@ -107,3 +107,17 @@ After installing the user configuration, run `python3 ~/.config/glyphos/scripts/
 Install `sshfs` (`sudo pacman -S --needed sshfs`). In Explorer’s Network & Mesh section, use Mobile Storage → Connect Phone to set the phone’s LAN IP, SSH username, port (Termux typically 8022), and remote folder. On Termux, run `termux-setup-storage` and `sshd`. Generate the PC key using the setup dialog, copy its public key, and add it to the phone’s `~/.ssh/authorized_keys`. Inspect the SSH host fingerprint and compare it with `ssh-keygen -lf $PREFIX/etc/ssh/ssh_host_ed25519_key.pub` on the phone before choosing Trust Host & Connect. SSHFS uses SSH/SFTP encryption, not TLS. Strict host-key verification and key-only authentication remain enabled.
 
 The mount is `~/.config/glyphos/mesh/phone`; eject uses FUSE unmount and falls back to lazy unmount for broken mounts. Capacity probes and image reads run outside GTK’s main thread. Copy/move through drag-and-drop never overwrites existing files; remote Delete explicitly confirms permanent removal. The daemon retries an existing SSHFS connection with server-alive settings and reports connection loss after a bounded probe; an ejected mount stays disconnected until explicitly connected again. Personal connection profiles and SSH keys are excluded from Git.
+
+## Optional direct boot to Hyprlock (Plasma Login)
+
+For Plasma Login Manager, adapt
+`system/plasmalogin.conf.d/90-glyphos-autologin.conf.example` with your local username
+and install it as `/etc/plasmalogin.conf.d/90-glyphos-autologin.conf` (root-owned,
+mode 0644). This is separate from SDDM configuration. Confirm Hyprland and Hyprlock
+work before enabling autologin. The Hyprland config launches the existing lock
+layout with `--grace 0 --immediate-render --no-fade-in`; PAM still authenticates
+unlocking. This starts a user session automatically, then locks it; it is not a
+replacement login manager. Other autostart programs can run behind the lock.
+Do not store an account password in the config. Apply on the next reboot, without
+restarting the display manager in an active session. To roll back, remove this
+single autologin drop-in from a TTY and reboot to the standard greeter.

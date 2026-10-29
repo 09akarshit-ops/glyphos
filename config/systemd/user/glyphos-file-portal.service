@@ -9,4 +9,4 @@ ExecStart=/usr/bin/python3 %h/.config/glyphos/scripts/file_portal.py
 Restart=on-failure
 RestartSec=2
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

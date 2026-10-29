@@ -94,6 +94,13 @@ def dismiss():
             ipc.sendto(b'{"op":"outside"}',str(Path(os.environ['XDG_RUNTIME_DIR'])/'glyphos-island.sock'))
     except OSError:pass
     cursor=hypr('cursorpos'); layers=hypr('layers')
+    # The non-consuming mouse binding runs concurrently with Eww's opener.
+    # A taskbar click is never an outside click on a newly opened panel.
+    taskbar_names={'glyphos-top-bar','glyphos-app-titlebar','top-bar','app-titlebar'}
+    surfaces=[surface for monitor in layers.values() for group in monitor.get('levels',{}).values() for surface in group]
+    def contains(surface):
+        return surface['x']<=cursor['x']<surface['x']+surface['w'] and surface['y']<=cursor['y']<surface['y']+surface['h']
+    if any(surface.get('namespace') in taskbar_names and contains(surface) for surface in surfaces):return
     config=(HOME/'.config/eww/eww.yuck').read_text()
     panels=[(name,re.search(r':namespace "([^"]+)"',body).group(1) if re.search(r':namespace "([^"]+)"',body) else name) for name,body in re.findall(r'\(defwindow\s+([\w-]+)(.*?)(?=\n\(def|\Z)',config,re.S) if ':stacking "overlay"' in body]
     for window,namespace in panels:

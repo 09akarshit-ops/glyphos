@@ -1,0 +1,5 @@
+# Replace YOUR_USERNAME with the local account that owns the Hyprland config.
+[Autologin]
+User=YOUR_USERNAME
+Session=hyprland.desktop
+Relogin=false

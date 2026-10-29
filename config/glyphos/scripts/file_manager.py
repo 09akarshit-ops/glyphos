@@ -100,16 +100,6 @@ class Files(Gtk.Application):
         self.window=Gtk.ApplicationWindow(application=self,title='GlyphOS Files')
         self.window.set_default_size(960,540);self.window.set_decorated(False);self.window.add_css_class('glyphos-files')
         root=Gtk.Box(orientation=Gtk.Orientation.VERTICAL);self.window.set_child(root)
-        header=Gtk.Box(spacing=4);header.add_css_class('files-header');root.append(header)
-        spacer=Gtk.Box();spacer.set_hexpand(True);header.append(spacer)
-        for text,callback in [('−',lambda:self.window.minimize()),('□',lambda:self.window.unmaximize() if self.window.is_maximized() else self.window.maximize()),('×',self.window.close)]:
-            header.append(button(text,callback,'window-control'))
-        def drag_window(gesture,n,x,y):
-            if n==2:
-                self.window.unmaximize() if self.window.is_maximized() else self.window.maximize();return
-            device=gesture.get_current_event_device()
-            if device:self.window.get_surface().begin_move(device,1,x,y,gesture.get_current_event_time())
-        gesture=Gtk.GestureClick();gesture.set_button(1);gesture.connect('pressed',drag_window);spacer.add_controller(gesture)
         toolbar=Gtk.Box(spacing=8);toolbar.add_css_class('files-navigation');root.append(toolbar)
         toolbar.append(button('‹',self.back,'nav-button'));toolbar.append(button('›',self.forward,'nav-button'))
         folder=button('',lambda:self.navigate(self.path.parent),'nav-button');folder.set_child(self.icon('folder'));toolbar.append(folder)
@@ -119,8 +109,8 @@ class Files(Gtk.Application):
         side_scroll=Gtk.ScrolledWindow();side_scroll.set_policy(Gtk.PolicyType.NEVER,Gtk.PolicyType.AUTOMATIC);side_scroll.set_size_request(222,-1)
         self.sidebar=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=2);self.sidebar.add_css_class('files-sidebar');side_scroll.set_child(self.sidebar);body.append(side_scroll)
         main=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=0);main.add_css_class('files-main');main.set_hexpand(True);body.append(main)
-        self.store=Gio.ListStore.new(FileRow);self.selection=Gtk.SingleSelection.new(self.store);self.selection.set_autoselect(False)
-        self.view=Gtk.ColumnView.new(self.selection);self.view.set_show_row_separators(False);self.view.connect('activate',lambda _,position:self.open_row(self.store.get_item(position)))
+        self.store=Gio.ListStore.new(FileRow);self.selection=self.make_selection()
+        self.view=Gtk.ColumnView.new(self.selection);self.view.set_enable_rubberband(True);self.view.set_show_row_separators(False);self.view.connect('activate',lambda _,position:self.open_row(self.store.get_item(position)))
         for title,key,expand in [('Name','name',True),('Size','size',False),('Modified','date',False),('Permissions','permissions',False),('Type','type',False)]:
             factory=Gtk.SignalListItemFactory()
             factory.connect('setup',lambda _,item,key=key:self.setup_cell(item,key))
@@ -132,7 +122,7 @@ class Files(Gtk.Application):
         footer=Gtk.Box(spacing=14);self.status=label('');self.status.set_hexpand(True);footer.append(self.status)
         self.capacity=label('','dot-capacity');footer.append(self.capacity);main.append(footer)
         self.metrics=label('');footer.append(self.metrics)
-        self.selection.connect('notify::selected',lambda *_:self.selection_status())
+        self.selection.connect('selection-changed',lambda *_:self.selection_status())
         context=Gtk.GestureClick();context.set_button(3);context.connect('pressed',self.context_menu);self.view.add_controller(context)
         GLib.timeout_add_seconds(2,self.update_metrics)
         keys=Gtk.EventControllerKey();keys.connect('key-pressed',self.key);self.window.add_controller(keys)
@@ -154,7 +144,9 @@ class Files(Gtk.Application):
         self.add_drop_target(child,lambda:Path(child.glyphos_row.path) if getattr(child,'glyphos_row',None) and child.glyphos_row.directory else None)
     def drag_file(self,child):
         row=getattr(child,'glyphos_row',None)
-        return Gdk.ContentProvider.new_for_value(Gdk.FileList.new_from_list([Gio.File.new_for_path(row.path)])) if row else None
+        if not row:return None
+        rows=self.selected_rows();rows=rows if row in rows else [row]
+        return Gdk.ContentProvider.new_for_value(Gdk.FileList.new_from_list([Gio.File.new_for_path(item.path) for item in rows]))
     def add_drop_target(self,widget,destination):
         target=Gtk.DropTarget.new(Gdk.FileList,Gdk.DragAction.COPY|Gdk.DragAction.MOVE)
         def dropped(controller,files,x,y):
@@ -203,8 +195,8 @@ class Files(Gtk.Application):
             else:text=datetime.fromtimestamp(row.mtime).strftime('%d %b %y %H:%M') if row.mtime else '—'
         cell.set_text(text);cell.set_tooltip_text(row.path if key=='name' else text)
     def selection_status(self):
-        row=self.selected()
-        self.status.set_text('[ 1 Item Selected ]' if row else f'[ {getattr(self,"item_count",0)} Items ]')
+        count=self.selection.get_selection().get_size()
+        self.status.set_text(f'[ {count} Items Selected ]' if count else f'[ {getattr(self,"item_count",0)} Items ]')
     def update_metrics(self):
         if not self.window:return False
         try:
@@ -218,7 +210,9 @@ class Files(Gtk.Application):
             row=getattr(target,'glyphos_row',None)
             if row is not None:
                 for i in range(self.store.get_n_items()):
-                    if self.store.get_item(i) is row:self.selection.set_selected(i);break
+                    if self.store.get_item(i) is row:
+                        if not self.selection.is_selected(i):self.selection.select_item(i,True)
+                        break
                 break
             target=target.get_parent()
         opening='Open with VLC Media Player' if self.audio_row(self.selected()) else 'Open'
@@ -227,7 +221,16 @@ class Files(Gtk.Application):
             box.append(button(text,lambda callback=callback:(pop.popdown(),callback())))
         rectangle=Gdk.Rectangle();rectangle.x=int(x);rectangle.y=int(y);rectangle.width=1;rectangle.height=1;pop.set_pointing_to(rectangle)
         pop.connect('closed',lambda *_:pop.unparent());pop.popup()
-    def selected(self):return self.selection.get_selected_item()
+    def make_selection(self):
+        # Portal requests that allow one file must remain single-selection.
+        if hasattr(self,'request') and not (self.request.get('method')=='OpenFile' and self.options.get('multiple')):
+            model=Gtk.SingleSelection.new(self.store);model.set_autoselect(False);return model
+        return Gtk.MultiSelection.new(self.store)
+    def selected_rows(self):
+        return [self.store.get_item(i) for i in range(self.store.get_n_items()) if self.selection.is_selected(i)]
+    def selected(self):
+        bits=self.selection.get_selection()
+        return None if bits.is_empty() else self.store.get_item(bits.get_minimum())
     def key(self,controller,keyval,keycode,state):
         editing=isinstance(self.window.get_focus(),Gtk.Editable)
         ctrl=bool(state&Gdk.ModifierType.CONTROL_MASK)
@@ -239,6 +242,7 @@ class Files(Gtk.Application):
         actions={Gdk.KEY_Return:lambda:self.open_row(self.selected()),Gdk.KEY_KP_Enter:lambda:self.open_row(self.selected()),Gdk.KEY_space:self.open_preview,Gdk.KEY_F2:self.rename,Gdk.KEY_Delete:self.trash}
         if keyval in actions:actions[keyval]();return True
         if ctrl:
+            if keyval==Gdk.KEY_a:self.selection.select_all();return True
             fn={Gdk.KEY_c:self.copy,Gdk.KEY_v:self.paste,Gdk.KEY_h:self.toggle_hidden,Gdk.KEY_l:self.path_dialog}.get(keyval)
             if fn:fn();return True
         if keyval==Gdk.KEY_BackSpace:self.back();return True
@@ -301,7 +305,7 @@ class Files(Gtk.Application):
                     if pending:
                         for i in range(self.store.get_n_items()):
                             row=self.store.get_item(i)
-                            if row.path==pending:self.selection.set_selected(i);self.open_row(row);break
+                            if row.path==pending:self.selection.select_item(i,True);self.open_row(row);break
                     return False
                 return True
             GLib.idle_add(append);return False
@@ -483,28 +487,28 @@ class Files(Gtk.Application):
             self.perform(work)
         self.prompt('Rename',source.name,change)
     def copy(self):
-        row=self.selected()
-        if row:self.clipboard=row.path;self.status.set_text('Ready to copy '+Path(row.path).name)
+        rows=self.selected_rows()
+        if rows:self.clipboard=[row.path for row in rows];self.status.set_text(f'Ready to copy {len(rows)} items')
     def paste(self):
         if not self.clipboard:return
-        source=Path(self.clipboard);destination=self.path/source.name
-        def work():
-            if destination.exists():raise FileExistsError('A file with that name already exists.')
-            if source.is_dir():
-                if destination==source or source in destination.parents:raise ValueError('Cannot copy a folder into itself.')
-                shutil.copytree(source,destination,symlinks=True)
-            else:Gio.File.new_for_path(str(source)).copy(Gio.File.new_for_path(str(destination)),Gio.FileCopyFlags.NONE,None,None,None)
-        self.perform(work)
+        sources=list(self.clipboard);destination=self.path
+        self.perform(lambda:transfer(sources,destination,False))
     def trash(self):
-        row=self.selected()
-        if not row:return
-        remote=Path(row.path)==MOUNT or MOUNT in Path(row.path).parents
-        win,box=self.dialog('Permanently Delete from Phone' if remote else 'Move to Trash');name=label(Path(row.path).name);name.set_wrap(True);box.append(name)
-        if remote:
-            source=Path(row.path)
-            box.append(button('Permanently Delete',lambda:(self.perform(lambda:shutil.rmtree(source) if source.is_dir() and not source.is_symlink() else source.unlink()),win.close())))
-            box.append(button('Cancel',win.close));win.present();return
-        box.append(button('Move to Trash',lambda:(self.perform(lambda:Gio.File.new_for_path(row.path).trash(None)),win.close())))
+        rows=self.selected_rows()
+        if not rows:return
+        paths=[Path(row.path) for row in rows]
+        remote=any(path==MOUNT or MOUNT in path.parents for path in paths)
+        win,box=self.dialog('Delete Selected Items' if remote else 'Move to Trash')
+        name=label('\n'.join(path.name for path in paths[:10])+('\n…' if len(paths)>10 else ''));name.set_wrap(True);box.append(name)
+        if remote:box.append(label('Phone items will be permanently deleted.'))
+        def work():
+            for source in paths:
+                if source==MOUNT:raise ValueError('Eject the phone instead of deleting its mount.')
+                if MOUNT in source.parents:
+                    if source.is_dir() and not source.is_symlink():shutil.rmtree(source)
+                    else:source.unlink()
+                else:Gio.File.new_for_path(str(source)).trash(None)
+        box.append(button('Delete' if remote else 'Move to Trash',lambda:(self.perform(work),win.close())))
         box.append(button('Cancel',win.close));win.present()
     def open_preview(self):
         row=self.selected()

@@ -75,7 +75,7 @@ class Desktop:
             glyph_dark=dark,glyph_assets=str(BASE/'themes/dark-assets') if dark else 'assets')
         if value!=self.last_context or time.monotonic()-self.context_sent>15:
             update(**value);self.last_context=value;self.context_sent=time.monotonic()
-        if self.last_active is not None and self.last_active!=active.get('address'):
+        if active.get('address') and self.last_active is not None and self.last_active!=active.get('address'):
             opened={row.split(':',1)[0] for row in call('eww','active-windows').splitlines()}
             dismiss=opened & {'wifi-menu','bluetooth-menu','glyph-notifications','taskbar-context','app-launcher'}
             if dismiss:call('eww','close',*sorted(dismiss),check=False)

@@ -217,3 +217,7 @@ Trust, mount paths and device names are runtime data excluded from Git. On this
 machine discovery was verified with zero devices; real phone pairing/mounting
 still requires a phone and installation of the missing sshfs package.
 Offline checks: `python3 tests/file_manager_mesh_test.py`.
+
+### VLC queue panel
+
+Now Playing and the expanded Island have Queue buttons. The shared panel reads VLC’s MPRIS TrackList, shows the current and following playlist entries, and switches via GoTo when a row is selected. Refreshes and commands run off the GTK thread; refresh runs only while the panel is open. Shuffle shows playlist order because MPRIS does not expose the shuffled future order. Spotify queue integration is deferred.

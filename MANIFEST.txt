@@ -186,9 +186,11 @@ config/glyphos/scripts/lyrics-test-volume.py
 config/glyphos/scripts/lyrics-timing.py
 config/glyphos/scripts/lyrics.py
 config/glyphos/scripts/lyrics_web.py
+config/glyphos/scripts/media_queue.py
 config/glyphos/scripts/mobile_sftp.py
 config/glyphos/scripts/phone_mesh.py
 config/glyphos/scripts/picker.py
+config/glyphos/scripts/queue_popup.py
 config/glyphos/scripts/search.py
 config/glyphos/scripts/snap_engine.py
 config/glyphos/scripts/start-services.sh
@@ -345,10 +347,13 @@ screenshots/day-08-2026-10-08/control-center.png
 screenshots/day-08-2026-10-08/file-explorer.png
 screenshots/day-08-2026-10-08/lyrics.png
 screenshots/day-08-2026-10-08/start-menu.png
+system/plasmalogin.conf.d/90-glyphos-autologin.conf.example
 tests/file_manager_mesh_test.py
 tests/fullscreen_island_test.py
 tests/global_artwork_test.py
 tests/lyrics_provider_test.py
 tests/lyrics_web_test.py
+tests/media_queue_test.py
 tests/mobile_storage_test.py
 tests/snap_layout_test.py
+tests/taskbar_dismiss_test.py

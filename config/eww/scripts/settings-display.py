@@ -21,7 +21,20 @@ def launch(candidates):
  notify('No compatible control panel is installed for this section.')
 if __name__=='__main__':
  action=sys.argv[1] if len(sys.argv)>1 else 'state'
- if action=='state':print(json.dumps(state()))
+ if action=='fullscreen':
+  opened={line.split(':',1)[0] for line in run('eww','--no-daemonize','active-windows').splitlines()}
+  for name in ('settings-window','settings-app'):
+   if name in opened:run('eww','--no-daemonize','close',name)
+  rows=monitors();m=next((r for r in rows if r.get('focused')),rows[0] if rows else {})
+  if m:
+   width,height=m['width'],m['height']
+   if m.get('transform',0)%2:width,height=height,width
+   reserved=m.get('reserved',[0,0,0,0]);scale=m.get('scale',1)
+   width=max(1,round(width/scale)-reserved[0]-reserved[2])
+   height=max(1,round(height/scale)-reserved[1]-reserved[3])
+   run('eww','--no-daemonize','open','settings-app-max','--size',f'{width}x{height}','--pos','0x0','--anchor','top left')
+  else:run('eww','--no-daemonize','open','settings-app-max')
+ elif action=='state':print(json.dumps(state()))
  elif action in ('scale','mode'):
   rows=monitors();m=next((r for r in rows if r.get('focused')),rows[0] if rows else None)
   if not m:sys.exit(1)

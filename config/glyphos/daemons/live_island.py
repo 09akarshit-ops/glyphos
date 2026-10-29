@@ -1,5 +1,5 @@
 """Live activities owned by Desktop: GTK layer shell, GLib animation, bounded workers."""
-import json, math, os, signal, socket, time,sys
+import json, math, os, signal, socket, time,sys,subprocess
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 from urllib.request import urlopen
@@ -212,6 +212,9 @@ class Island:
         self.interacted=time.monotonic()
         if not self.expanded:self.expand(True);return True
         row=self.current();w=self.area.get_allocated_width();h=self.area.get_allocated_height()
+        if row and row['kind']=='media' and event.y<35 and event.x<100:
+            subprocess.Popen(['/usr/bin/python3',str(HOME/'.config/glyphos/scripts/queue_popup.py')],start_new_session=True)
+            return True
         if event.y<35 and event.x>w-65:self.expand(False);return True
         if row and row['kind']=='media' and 105<=event.y<=135:self.seek_to(event.x);return True
         if event.y>h-65 and row:
@@ -248,7 +251,9 @@ class Island:
             data=json.loads(self.ipc.recv(4096));op=data.get('op')
             if op=='expand':self.expand(True)
             elif op=='collapse':self.expand(False)
-            elif op=='outside' and self.expanded:self.submit('island-outside',self.outside)
+            elif op=='queue-hold':self.interacted=time.monotonic();self.queue_until=time.monotonic()+1
+            elif op=='queue-release':self.queue_until=0;self.interacted=time.monotonic()
+            elif op=='outside' and self.expanded and time.monotonic()>getattr(self,'queue_until',0):self.submit('island-outside',self.outside)
             elif op=='verify-fixture':
                 self.fixture_until=time.monotonic()+22
                 self.queue.put('verify-media',kind='media',title='Luminous Flow',subtitle='Night Drive · verification',status='Playing',icon='♫',priority=20,progress=.4,until=self.fixture_until)
@@ -305,6 +310,7 @@ class Island:
             if self.art and row['kind']=='media':pass
             else:
                 c.set_source_rgb(.2,.2,.2);c.rectangle(24,32,64,64);c.fill();icon(row['kind'],43,77,26)
+            if row['kind']=='media':text('☷ Queue',20,26,13)
             text(row['title'][:30],106,57,20);text(row.get('subtitle','')[:42],106,82,13,(.6,.6,.6))
             progress=row.get('progress')
             if row['kind'] in ('media','install'):

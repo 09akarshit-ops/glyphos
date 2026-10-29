@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-10-29 — boot, taskbar and file navigation fixes
+
+- Add VLC queue controls to Now Playing and the expanded Island, with selectable
+  real MPRIS playlist entries in a compact panel below the Island. Defer Spotify
+  queues; label shuffle lists as playlist order rather than predicted playback order.
+- Restore the idle Now Playing card’s off-white surface, border, shadow and spacing;
+  brighten playback artwork and constrain long lyric lines to the Island’s width.
+- Recover artwork for reversed local title/artist metadata and correctly parse
+  song-first filenames with featured-artist credits for synchronized lyrics.
+- Add standard previous/play-pause/next media key bindings for compatible players.
+- Repair browser attachment/save pickers by starting their portal with the active
+  Wayland environment after the graphical session becomes available.
+- Remove duplicate Files window controls; enable rubber-band multi-selection,
+  group copy/trash/drag operations, and preserve single-file portal request limits.
+- Match the unplugged battery outline to the charging icon without its bolt.
+- Fix the taskbar opening-click dismissal race and transient layer focus changes.
+- Make Super+I open Settings maximized within the usable desktop bounds.
+- Document Plasma Login autologin into Hyprland with immediate startup Hyprlock;
+  retain the standard greeter as a fallback and keep credentials out of the repository.
+
+Validation: mocked VLC queue ordering/selection and fixture-only queue UI; real
+OpenFile/SaveFile portal opening and cancellation; filename parsing and synchronized
+Kala Doriya lookup; selection/group-copy fixtures; taskbar click-dismiss regression
+and live Wi-Fi/Bluetooth/battery panel persistence; Settings geometry 1600×804 below
+the 96px taskbar. The user confirmed direct-to-Hyprlock boot after reboot. No queue
+selection tests changed live playback. End-to-end mouse rubber-band interaction
+and a real VLC playlist selection still require manual verification.
+
 ## 2026-10-08 — personalized desktop and native file integration
 
 - Add shared artwork backgrounds to the Dynamic Island and desktop Now Playing

@@ -59,9 +59,18 @@ def fetch(state):
    try:
     with urlopen(address,timeout=5) as response:payload=json.load(response)
     rows=payload.get('results',[]) if provider=='itunes' else [dict(trackName=r.get('title',''),artistName=r.get('artist',{}).get('name',''),artworkUrl100=r.get('album',{}).get('cover_big','')) for r in payload.get('data',[])]
-    rows=[r for r in rows if similarity(title,r.get('trackName',''))>=.65 and similarity(artist,r.get('artistName',''))>=.5]
+    def score(row):
+     pairs=[(title,artist)]
+     # Untagged local downloads can use either Artist - Song or Song - Artist.
+     if path:pairs.append((artist,title))
+     scores=[]
+     for track,performer in pairs:
+      ts=similarity(track,row.get('trackName',''));ars=similarity(performer,row.get('artistName',''))
+      if ts>=.65 and ars>=.5:scores.append(ts+ars)
+     return max(scores,default=0)
+    rows=[r for r in rows if score(r)>0]
     if not rows:continue
-    row=max(rows,key=lambda r:similarity(title,r.get('trackName',''))+similarity(artist,r.get('artistName','')))
+    row=max(rows,key=score)
     cover=download(row.get('artworkUrl100','').replace('100x100bb','600x600bb'),target)
     if cover:return cover
    except Exception:continue
