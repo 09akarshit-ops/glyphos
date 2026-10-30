@@ -36,7 +36,8 @@ class Desktop:
             finally:GLib.idle_add(lambda:(self.running.discard(name),False)[1])
         POOL.submit(work)
     def layers(self):
-        for name in ('top-bar','app-titlebar','weather','dot-field','home','nowplaying','dock'):
+        for name in ('top-bar','app-titlebar','weather','dot-field','nowplaying','dock'):
+            if name=='dock' and read(HOME/'.config/glyphos/dock.json',{}).get('hidden'):continue
             opened=call('eww','active-windows')
             if name+':' in opened:continue
             call('eww','open',name,check=False)

@@ -29,6 +29,7 @@ mkdir -p ~/.local/share/nothingos ~/Pictures
 cp local/share/nothingos/*.sh ~/.local/share/nothingos/
 cp assets/wallpaper.jpg ~/Pictures/wallpaper.jpg
 cp assets/wallpaper-glyphos.png ~/Pictures/wallpaper-glyphos.png
+cp config/glyphos/themes/layouts/charcoal/wallpaper.png ~/Pictures/wallpaper5-clean-no-logo.png
 ```
 
 ## 3. Install the dot-matrix font
@@ -121,3 +122,14 @@ replacement login manager. Other autostart programs can run behind the lock.
 Do not store an account password in the config. Apply on the next reboot, without
 restarting the display manager in an active session. To roll back, remove this
 single autologin drop-in from a TTY and reboot to the standard greeter.
+
+## Dock and screenshot helpers
+
+Right-click dock icons or gaps for app actions and Dock Options. Super+Alt+D opens
+Dock Options even if the dock is hidden. Preferences are local in
+`~/.config/glyphos/dock.json`. Native app removal uses an authenticated kitty/pacman
+prompt; user Flatpaks use the existing confirmation/job UI. Pillow is optional for
+fast cached artwork blur; FFmpeg provides the fallback.
+
+Super+P requires `grim`, `wl-copy` (wl-clipboard) and `notify-send` (libnotify). It
+saves to `~/Pictures` and copies the same PNG; it does not change the Print binding.

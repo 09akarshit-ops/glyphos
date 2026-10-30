@@ -1,0 +1,18 @@
+{
+  "id": "classic-light",
+  "name": "Classic Light",
+  "reference_only": true,
+  "source_commit": "5499720",
+  "wallpaper": "wallpaper.png",
+  "desktop_shortcut_row": true,
+  "desktop_text": "#080908",
+  "dock_items": [
+    "home",
+    "files",
+    "chat",
+    "ai",
+    "browser"
+  ],
+  "now_playing": "light idle card with track artwork",
+  "notes": "Reference snapshots for a future theme switcher; merge visual sections rather than replacing live configuration and reverting feature fixes."
+}

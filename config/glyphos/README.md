@@ -221,3 +221,13 @@ Offline checks: `python3 tests/file_manager_mesh_test.py`.
 ### VLC queue panel
 
 Now Playing and the expanded Island have Queue buttons. The shared panel reads VLC’s MPRIS TrackList, shows the current and following playlist entries, and switches via GoTo when a row is selected. Refreshes and commands run off the GTK thread; refresh runs only while the panel is open. Shuffle shows playlist order because MPRIS does not expose the shuffled future order. Spotify queue integration is deferred.
+
+### Dock menus
+
+Right-click an icon for removal from the dock or confirmed application uninstall.
+User Flatpaks use the existing job/confirmation UI; native packages open an
+authenticated terminal with pacman dependency checks and confirmation. Web shortcuts
+and protected desktop components cannot be uninstalled through this menu.
+Right-click dock padding or a gap for rearranging, hiding, background color,
+and adding an installed application. Preferences live in `~/.config/glyphos/dock.json`
+and are excluded from Git. Super+Alt+D opens Dock Options, including Show Dock.

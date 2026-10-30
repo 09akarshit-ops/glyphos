@@ -93,6 +93,10 @@ def dismiss():
         with socket.socket(socket.AF_UNIX,socket.SOCK_DGRAM) as ipc:
             ipc.sendto(b'{"op":"outside"}',str(Path(os.environ['XDG_RUNTIME_DIR'])/'glyphos-island.sock'))
     except OSError:pass
+    try:
+        with socket.socket(socket.AF_UNIX,socket.SOCK_DGRAM) as ipc:
+            ipc.sendto(b'outside',str(Path(os.environ['XDG_RUNTIME_DIR'])/'glyphos-dock-menu.sock'))
+    except OSError:pass
     cursor=hypr('cursorpos'); layers=hypr('layers')
     # The non-consuming mouse binding runs concurrently with Eww's opener.
     # A taskbar click is never an outside click on a newly opened panel.

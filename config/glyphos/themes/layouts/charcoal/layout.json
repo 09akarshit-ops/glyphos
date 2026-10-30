@@ -1,0 +1,21 @@
+{
+  "id": "charcoal",
+  "name": "Charcoal",
+  "reference_only": true,
+  "source_commit": null,
+  "wallpaper": "wallpaper.png",
+  "desktop_shortcut_row": false,
+  "desktop_text": "#ffffff",
+  "dock_items": [
+    "home",
+    "files",
+    "chat",
+    "ai",
+    "browser",
+    "settings",
+    "music",
+    "photos"
+  ],
+  "now_playing": "dark idle card, bright cool glow, playback artwork; raised 24px",
+  "notes": "Reference snapshots for a future theme switcher; merge visual sections rather than replacing live configuration and reverting feature fixes."
+}

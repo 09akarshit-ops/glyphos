@@ -11,7 +11,7 @@ for attempt in {1..50}; do
     if hyprctl monitors -j >/dev/null 2>&1 && eww --no-daemonize --config "$base" ping >/dev/null 2>&1; then
         # Opening all layers in one request can exceed Eww's short IPC timeout.
         # Space requests so a busy daemon is not mistaken for a missing daemon.
-        for window in top-bar app-titlebar weather dot-field home nowplaying dock; do
+        for window in top-bar app-titlebar weather dot-field nowplaying dock; do
             # Eww's client can time out after an open was already accepted.
             # Check the actual state rather than spawning a replacement server.
             if ! eww --no-daemonize --config "$base" open "$window"; then

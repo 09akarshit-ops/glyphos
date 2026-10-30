@@ -16,10 +16,13 @@ MODALS = tuple(name for name, body in re.findall(
 
 
 def run(*args):
-    result = subprocess.run(args, capture_output=True, text=True, timeout=3)
-    if result.returncode:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip())
-    return result.stdout.strip()
+    for attempt in range(4):
+        result = subprocess.run(args, capture_output=True, text=True, timeout=3)
+        if not result.returncode:return result.stdout.strip()
+        transient=args[0]=='eww' and ('Resource temporarily unavailable' in result.stderr or 'Error reading response' in result.stderr)
+        if not transient or attempt==3:raise RuntimeError(result.stderr.strip() or result.stdout.strip())
+        time.sleep(.12)
+    return ''
 
 
 def eww(*args):
@@ -36,6 +39,26 @@ def close():
         eww('close', *sorted(opened))
 
 
+def launcher_close():
+    opened=active() & {'app-launcher','power-menu'}
+    if opened:eww('close',*sorted(opened))
+    eww('update','launcher-power-open=false')
+
+
+def launcher_toggle():
+    if 'app-launcher' in active():launcher_close()
+    else:
+        eww('update','launcher-power-open=false')
+        eww('open','app-launcher')
+
+
+def power():
+    if 'app-launcher' in active():
+        opened=eww('get','launcher-power-open').strip()=='true'
+        eww('update','launcher-power-open='+str(not opened).lower())
+    else:eww('open','power-menu')
+
+
 def watch():
     # Compatibility only: lifecycle is owned by the GlyphOS systemd service.
     print('false', flush=True)
@@ -49,8 +72,11 @@ if __name__ == '__main__':
         elif command == 'close':
             close()
         elif command == 'power':
-            close()
-            eww('open', 'power-menu')
+            power()
+        elif command == 'launcher-close':
+            launcher_close()
+        elif command == 'launcher-toggle':
+            launcher_toggle()
         elif command in ('shutdown', 'reboot', 'logout'):
             close()  # Release every input surface before asking the session to end.
             actions = {'shutdown': ['systemctl', 'poweroff'],

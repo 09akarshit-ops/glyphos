@@ -1,0 +1,12 @@
+{
+  "wallpaper.png": "b08d1cc03f7b7c706da9ddd2c9c4ca8275ad212001c2c5935807707ac6b51e49",
+  "layout.json": "fc02e3b5a8f0f8602182b513bd11312485e58cc564e6cfec0688c82aebe9fc44",
+  "reference/eww/hyprpaper.conf": "503daaaedee42a71903185c68a08fd6adc875ef3edf83a243aa167289511910d",
+  "reference/eww/eww.scss": "e47388cbeb4496be54e8af96b6a58d3bb3304ec74ce6ad91e1a950de8d30cc21",
+  "reference/eww/eww.yuck": "29dfe03d101cb0b99708c4d71d4ddebbe2df6071b73f7f6071fbe3e3a8385333",
+  "reference/glyphos/daemons/desktop.py": "104bedde1822bd12475c5144e8e3156926aae6983bf9a647828ddfaa78be23c2",
+  "reference/glyphos/themes/light.scss": "d0e768b4063a5e0b28a4e2b811bd4cd0c0b8190b3e0832f9222a9fc8ccf8d4f4",
+  "reference/eww/scripts/set-wallpaper.sh": "b3fa51f870b4c1bed978cca0dbb624ad1a85265aec806c4f00b88a8e2c91bd7b",
+  "reference/eww/scripts/start-desktop.sh": "5c940e163e61e8abdc3da00ac7b421a163ab534ce6291bf498fe475dee9b8980",
+  "reference/eww/scripts/dock-service.py": "8765299ef6f096ad93d9f72b037a1fa75722834c7e89a7c348cc5de671b6e81e"
+}

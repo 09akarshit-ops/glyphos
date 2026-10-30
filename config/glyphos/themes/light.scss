@@ -316,101 +316,6 @@ button.sidebar-item:hover {
     color: #ffffff;
 }
 
-/* GlyphOS launcher: one scoped light-theme definition. */
-.launcher-window {
-    background-color: #e9e9e4;
-    color: #111111;
-    border: 1px dotted rgba(0, 0, 0, 0.16);
-    border-radius: 24px;
-    padding: 20px;
-}
-.launcher-window .launcher-search {
-    background-color: #f5f5f0;
-    border: 1px solid #d0d0c8;
-    border-radius: 14px;
-    padding: 8px 14px;
-}
-.launcher-window .launcher-search-icon { font-size: 26px; color: #555555; }
-.launcher-window .launcher-input {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    color: #111111;
-    caret-color: #111111;
-    font-size: 14px;
-    min-height: 32px;
-    padding: 0;
-}
-.launcher-window .launcher-placeholder {
-    font-family: "Ndot";
-    font-size: 14px;
-    color: #666666;
-}
-.launcher-window .launcher-logo {
-    font-family: "Ndot";
-    font-size: 22px;
-    color: #111111;
-}
-.launcher-window .launcher-title {
-    font-family: "Ndot";
-    font-size: 16px;
-    color: #111111;
-}
-.launcher-window .launcher-close {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    color: #555555;
-    padding: 0 6px;
-    font-size: 22px;
-}
-.launcher-window .launcher-sidebar { background-color: transparent; padding: 0; min-width: 182px; }
-.launcher-window .sidebar-item,
-.launcher-window .sidebar-allapps,
-.launcher-window .launcher-more {
-    background-color: #f5f5f0;
-    background-image: none;
-    border: 1px solid #d0d0c8;
-    box-shadow: none;
-    border-radius: 12px;
-    color: #111111;
-    font-family: "Ndot";
-    font-size: 13px;
-    font-weight: normal;
-    padding: 8px 12px;
-    min-height: 18px;
-}
-.launcher-window .sidebar-item:hover,
-.launcher-window .sidebar-allapps:hover,
-.launcher-window .launcher-more:hover { background-color: #ddddd6; border-color: #b8b8b0; }
-.launcher-window .launcher-grid { padding: 0; }
-.launcher-window .launcher-section-title {
-    font-family: "Ndot";
-    font-size: 12px;
-    color: #666666;
-    margin-bottom: 2px;
-}
-.launcher-window .tile {
-    background-color: #f5f5f0;
-    background-image: none;
-    border: 1px solid #d0d0c8;
-    border-radius: 18px;
-    color: #111111;
-    padding: 16px;
-    min-width: 116px;
-    min-height: 98px;
-    box-shadow: none;
-}
-.launcher-window button.tile:hover { background-color: #ddddd6; border-color: #b8b8b0; }
-.launcher-window .tile-value { font-family: "Ndot"; font-size: 28px; color: #111111; }
-.launcher-window .tile-label { font-family: "Ndot"; font-size: 13px; color: #111111; }
-.launcher-window .launcher-weather-status { font-size: 10px; color: #666666; }
-.launcher-window .launcher-search-result { font-size: 12px; color: #555555; margin-top: 6px; }
-/* The power submenu follows the same palette. */
-.launcher-sidebar { background-color: #e9e9e4; border-radius: 18px; padding: 10px; }
-
 window { background-color: transparent; }
 
 /* Reference desktop: #e9e9e4 glass, near-black ink and white line icons. */
@@ -751,3 +656,101 @@ window.top-bar { margin: 0; padding: 0; }
 
 .music-queue {background:transparent; background-image:none; border:none; box-shadow:none; padding:0 5px; min-height:18px;}
 .music-queue label {font-size:18px;}
+
+/* Transparent input wrapper preserves the original rounded dock surface. */
+.dock-input {background:transparent; background-image:none; border:none; box-shadow:none; border-radius:42px;}
+
+
+/* Wallpaper5 reference: live player card and matching cool ambient elevation. */
+.nowplaying-art.idle .music-card {background:#181a1d; border:1px solid #748493; box-shadow:0 0 12px rgba(160,190,220,.38),0 4px 9px rgba(0,0,0,.28);}
+.nowplaying-art.idle label {color:#e2eaf4; text-shadow:none;}
+.nowplaying-art.idle .music-heading, .nowplaying-art.idle .music-artist {color:#a7b7c7;}
+.nowplaying-art .music-card {border:1px solid #748493; box-shadow:0 0 12px rgba(160,190,220,.38),0 4px 9px rgba(0,0,0,.28);}
+.nowplaying-art .music-progress trough {background:#59616d; border:none;}
+.nowplaying-art .music-progress highlight, .nowplaying-art .music-progress slider {background:#e2eaf4;}
+.nowplaying-art .transport-main, .nowplaying-art.has-artwork .transport-main {background:#e2eaf4; background-image:none; border:1px solid rgba(255,255,255,.65);}
+.dock-input {margin:8px 12px;}
+.glass-dock {background:rgba(233,233,228,.88); border:1px solid #8e9eae; box-shadow:0 0 12px rgba(160,190,220,.38),0 4px 9px rgba(0,0,0,.28);}
+.glass-dock .dock-icon {background-color:#242625; color:#ffffff; border-color:rgba(255,255,255,.12);}
+.glass-dock .dock-icon:hover {background-color:#424441;}
+
+/* Live desktop lettering stays legible on the charcoal reference wallpaper. */
+.desktop-heading label, .desktop-heading .ndot-heading, .desktop-heading .desktop-city {color:#ffffff;}
+
+/* Keep dock buttons circular instead of stretching to the glow surface height. */
+.glass-dock .dock-icon {min-width:48px; min-height:48px; padding:5px; border-radius:50%;}
+window#dock, window#nowplaying {background:transparent; background-image:none; box-shadow:none;}
+
+/* Layer windows must not paint a rectangular GTK theme background behind rounded cards. */
+window {background-color:transparent; background-image:none; box-shadow:none;}
+
+/* Reserve fully transparent space for shadow falloff instead of clipping at the card bounds. */
+.nowplaying-art-layer {margin:40px;}
+.nowplaying-art .music-card {margin:40px;}
+.nowplaying-art .music-card, .nowplaying-art.idle .music-card {
+ box-shadow:0 0 18px rgba(170,205,240,.65),0 0 7px rgba(185,215,250,.55),0 5px 12px rgba(0,0,0,.24);
+ border-color:#99adbf;
+}
+.dock-shadow-space {padding:24px; background:transparent; background-image:none; border:none; box-shadow:none;}
+.dock-input {margin:0;}
+.glass-dock {box-shadow:0 0 10px rgba(160,195,230,.40),0 3px 8px rgba(0,0,0,.18);}
+
+/* Keep the resolved cover visible beneath the foreground controls. */
+.nowplaying-art.has-artwork .music-card {background-color:rgba(0,0,0,.08); background-image:none;}
+
+/* Fill the dock with one blurred cover, never repeated image tiles. */
+.glass-dock {background-size:cover; background-position:center; background-repeat:no-repeat;}
+.nowplaying-art.has-artwork .music-card {background-color:transparent; background-image:linear-gradient(rgba(0,0,0,.16),rgba(0,0,0,.30));}
+.nowplaying-art.has-artwork .music-heading, .nowplaying-art.has-artwork .music-text, .nowplaying-art.has-artwork .music-artist {color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,.95);}
+
+/* Start Menu: dark frosted surfaces with clean standard typography. */
+.launcher-shell {background:transparent;}
+.launcher-window, .launcher-power-menu {
+ background-color:rgba(0,0,0,.76);
+ background-image:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01));
+ color:#eef1f5; border:1px solid rgba(255,255,255,.18); border-radius:24px;
+ font-family:"Inter","sans-serif";
+}
+.launcher-window {padding:20px;}
+.launcher-window label, .launcher-window button, .launcher-window input,
+.launcher-power-menu label, .launcher-power-menu button {font-family:"Inter","sans-serif";}
+.launcher-window .launcher-search {
+ background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+ border-radius:14px; padding:8px 14px; box-shadow:none;
+}
+.launcher-window .launcher-search-icon {font-size:24px; color:#bdc5d0;}
+.launcher-window .launcher-input {
+ background:transparent; background-image:none; border:none; box-shadow:none;
+ color:#f3f5f7; caret-color:#ffffff; font-size:14px; min-height:32px; padding:0;
+}
+.launcher-window .launcher-placeholder {font-family:"Inter","sans-serif"; font-size:14px; color:#a5adb8;}
+.launcher-window .launcher-title {font-family:"Inter","sans-serif"; font-size:16px; font-weight:600; color:#f3f5f7;}
+.launcher-window .launcher-close {background:transparent; background-image:none; border:none; box-shadow:none; color:#c7ced7; padding:0 6px; font-size:22px;}
+.launcher-window .launcher-close:hover {color:#ffffff; background:rgba(255,255,255,.07); border-radius:8px;}
+.launcher-window .launcher-sidebar {background:transparent; padding:0; min-width:182px;}
+.launcher-window .sidebar-item, .launcher-window .sidebar-allapps, .launcher-window .launcher-more,
+.launcher-power-menu .sidebar-item {
+ background:transparent; background-image:none; color:#dce2e9;
+ border:1px solid transparent; border-radius:8px; box-shadow:none;
+ font-family:"Inter","sans-serif"; font-size:13px; font-weight:500;
+ padding:5px 10px; min-height:20px;
+}
+.launcher-window .sidebar-item:hover, .launcher-window .sidebar-allapps:hover,
+.launcher-window .launcher-more:hover, .launcher-power-menu .sidebar-item:hover {
+ background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.08); color:#ffffff;
+}
+.launcher-window .launcher-grid {padding:0;}
+.launcher-window .launcher-section-title {font-family:"Inter","sans-serif"; font-size:11px; font-weight:600; color:#a8b1be; margin-bottom:2px;}
+.launcher-window .tile {
+ background:rgba(255,255,255,.04); background-image:none;
+ border:1px solid rgba(255,255,255,.12); border-radius:18px;
+ color:#eef1f5; padding:16px; min-width:116px; min-height:98px; box-shadow:none;
+}
+.launcher-window button.tile:hover {background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.22);}
+.launcher-window .tile-label {font-family:"Inter","sans-serif"; font-size:14px; font-weight:600; color:#eef1f5;}
+.launcher-window .tile-value {font-family:"Inter","sans-serif"; font-size:28px; font-weight:600; color:#f3f5f7;}
+.launcher-window .launcher-weather-status {font-family:"Inter","sans-serif"; font-size:11px; color:#a5adb8;}
+.launcher-window .launcher-search-result {font-size:12px; color:#c4ccd7; margin-top:6px;}
+.launcher-power-menu {padding:12px; border-radius:16px;}
+.launcher-shell .launcher-power-menu {margin-top:148px;}
+.launcher-power-title {font-family:"Inter","sans-serif"; font-size:12px; font-weight:600; color:#dce2e9; padding:2px 0 5px;}

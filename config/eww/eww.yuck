@@ -11,8 +11,8 @@
 ;; GlyphOS reference desktop: 1408 x 768; fractional anchors adapt to other displays.
 (defwidget glyphos-brand []
   (box :class "glyphos-brand" :orientation "h" :space-evenly false :spacing 10
-    (image :path "${glyph-assets}/glyphos-dark.svg" :image-width 30 :image-height 30)
-    (label :class "launcher-title" :markup "<span font_family='Ndot 55'>GLYPHOS</span>" :halign "start")))
+    (image :path "assets/glyphos.svg" :image-width 30 :image-height 30)
+    (label :class "launcher-title" :markup "<span font_family='Inter'>GLYPHOS</span>" :halign "start")))
 (defwidget circle-action [icon command]
   (button :class "circle-action dock-icon" :onclick command :tooltip {icon == "home" ? "Glyph App Store" : icon}
     :onrightclick "~/.config/eww/scripts/app-service.py context-icon ${icon}"
@@ -22,7 +22,7 @@
     (button :class "desktop-app" :onclick command :halign "center" :tooltip title
       (image :path "${glyph-assets}/${icon}.svg" :image-width 40 :image-height 40))
     (label :class "desktop-app-label" :text title)))
-(deflisten island-art :initial '{"a":"background-color:#000000;","b":"background-color:#000000;","pane":0,"art":""}' "python3 -u ~/.config/eww/scripts/island-art.py")
+(deflisten island-art :initial '{"a":"background-color:#000000;","b":"background-color:#000000;","pane":0,"art":"","dock":""}' "python3 -u ~/.config/eww/scripts/island-art.py --stable-dock")
 (deflisten island-state :initial '{"active": "GlyphOS", "next": "Live activities", "synced": false, "marquee": false, "lyrics_mode": "none", "lyrics_description": "Live activities", "current_lyric": "", "next_lyric": "", "playing": false, "player": "", "line": -1, "title": "Nothing Playing", "artist": "No Artist", "status": "Stopped", "progress": 0, "pane": 0, "reveal_a": true, "reveal_b": false, "a": {"active": "GlyphOS", "next": "Live activities"}, "b": {"active": "GlyphOS", "next": "Live activities"}, "lyric_animating": false, "lyric_old": "", "lyric_promoted": "", "lyric_following": "", "lyric_old_y": 0, "lyric_active_y": 0, "lyric_next_y": 24, "lyric_old_alpha": 0, "lyric_active_alpha": 1, "lyric_next_alpha": 0.4, "lyric_active_size": 18}'
   "python3 -u ~/.config/eww/scripts/island-lyrics-listen.py")
 (defpoll bar-time :interval "1s" "date '+%I:%M:%S %p' | sed 's/^0//'")
@@ -99,42 +99,24 @@
   :geometry (geometry :x "1%" :y "7%" :width "530px" :height "235px" :anchor "top right")
   :stacking "bottom"
   :focusable false
-  (image :visible cc-glyph :path "${glyph-assets}/dot-field.svg" :image-width 530 :image-height 235))
+  (image :visible cc-glyph :path "assets/dot-field-light.svg" :image-width 530 :image-height 235))
 (defvar settings-tab "Display")
 (defpoll settings-display :interval "30s" :initial '{"scale":"100%","scales":["100%","125%","150%","175%","200%"],"mode":"","modes":[],"summary":"Detecting displays…"}' "~/.config/eww/scripts/settings-display.py state")
-(defwindow home
-  :namespace "glyphos-home"
-  :monitor 0
-  :geometry (geometry :x "0px" :y "41.5%" :width "952px" :height "102px" :anchor "top center")
-  :stacking "bottom"
-  :focusable false
-  (box :class "desktop-shortcuts" :space-evenly true :spacing 0
-    (shortcut :icon "glyphos" :title "App Store" :command "hyprctl dispatch exec /home/nothing_os/.local/bin/glyph-store")
-    (shortcut :icon "browser" :title "Browser" :command "brave &")
-    (shortcut :icon "files" :title "files" :command "~/.local/bin/glyphos-files &")
-    (shortcut :icon "settings" :title "settings" :command "eww --no-daemonize open settings-window")
-    (shortcut :icon "mail" :title "mail" :command "xdg-open https://mail.google.com &")
-    (shortcut :icon "music" :title "music" :command "spotify &")
-    (shortcut :icon "notes" :title "notes" :command "eww --no-daemonize open --toggle calendar-tasks")
-    (shortcut :icon "photos" :title "Photos" :command "dolphin ~/Pictures &")))
-
+(deflisten glyph-dock :initial '{"items":[],"hidden":false,"style":""}' "python3 -u ~/.config/eww/scripts/dock-service.py listen")
 (defwindow dock
   :namespace "glyphos-dock"
   :monitor 0
-  :geometry (geometry :x "0px" :y "9px" :width "1px" :height "80px" :anchor "bottom center")
+  :geometry (geometry :x "0px" :y "0px" :width "1px" :height "128px" :anchor "bottom center")
   :stacking "bottom"
   :focusable false
-  (box :class "glass-dock" :space-evenly false :spacing 17
-    (circle-action :icon "home" :command "hyprctl dispatch exec /home/nothing_os/.local/bin/glyph-store")
-    (circle-action :icon "files" :command "~/.local/bin/glyphos-files &")
-    (circle-action :icon "chat" :command "brave --app=https://web.whatsapp.com &")
-    (circle-action :icon "ai" :command "~/.config/glyphos/scripts/launch-gemini.sh &")
-    (circle-action :icon "browser" :command "brave &")
-    (box :visible {glyph-context == "dev"} :space-evenly false :spacing 6
-      (button :class "glyph-action" :onclick "~/.config/glyphos/scripts/actions.py git" :tooltip "Git status" "Git")
-      (button :class "glyph-action" :onclick "~/.config/glyphos/scripts/actions.py terminal" :tooltip "Toggle terminal" ">_"))
-))
-
+  (eventbox :class "dock-input" :visible {!glyph-dock.hidden} :onrightclick "python3 ~/.config/eww/scripts/dock-service.py menu"
+  (box :class "dock-shadow-space"
+    (box :class "glass-dock" :style {island-art.art != "" && island-art.dock != "" ? island-art.dock : glyph-dock.style} :valign "center" :space-evenly false :spacing 17
+      (for app in {glyph-dock.items}
+        (button :class "circle-action dock-icon" :tooltip {app.name} :width 60 :height 60 :halign "center" :valign "center" :vexpand false :hexpand false
+          :onclick "python3 ~/.config/eww/scripts/dock-service.py launch ${app.id}"
+          :onrightclick "python3 ~/.config/eww/scripts/dock-service.py context ${app.id}"
+          (image :path {app.icon} :image-width 38 :image-height 38)))))))
 
 (defpoll cc-state :interval "3s" :initial '{"wifi":false,"ssid":"Wi-Fi","bluetooth":false,"device":"Not connected","brightness":0,"volume":0,"priority":0,"dnd":false}' "~/.config/eww/scripts/control-center.py status")
 (defvar cc-glyph true)
@@ -344,15 +326,15 @@ Review available system updates before installing." : "Manage your ${settings-ta
 (defwindow nowplaying
   :namespace "glyphos-nowplaying"
   :monitor 0
-  :geometry (geometry :x "0px" :y "105px" :width "380px" :height "180px" :anchor "bottom center")
+  :geometry (geometry :x "0px" :y "97px" :width "444px" :height "244px" :anchor "bottom center")
   :stacking "bottom"
   :focusable false
-  (overlay :class {island-art.art != "" ? "nowplaying-art has-artwork" : "nowplaying-art idle"} :height 180 :width 380
-    (box :height 180 :width 380)
+  (overlay :class {island-art.art != "" ? "nowplaying-art has-artwork" : "nowplaying-art idle"} :height 244 :width 444
+    (box :height 244 :width 444)
     (revealer :transition "crossfade" :duration "600ms" :reveal {island-art.pane == 0}
-      (box :class "nowplaying-art-layer" :style {island-art.art != "" ? island-art.a : "background-image:none; background-color:transparent;"}))
+      (box :class "nowplaying-art-layer" :width 364 :height 164 :hexpand true :vexpand true :style {island-art.art != "" ? island-art.a : "background-image:none; background-color:transparent;"}))
     (revealer :transition "crossfade" :duration "600ms" :reveal {island-art.pane == 1}
-      (box :class "nowplaying-art-layer" :style {island-art.art != "" ? island-art.b : "background-image:none; background-color:transparent;"}))
+      (box :class "nowplaying-art-layer" :width 364 :height 164 :hexpand true :vexpand true :style {island-art.art != "" ? island-art.b : "background-image:none; background-color:transparent;"}))
   (box :class "music-card dock-media" :orientation "v" :space-evenly false :spacing 6
     (box :orientation "h" :space-evenly false
       (label :class "music-heading" :text "Now Playing" :halign "start" :hexpand true)
@@ -363,13 +345,14 @@ Review available system updates before installing." : "Manage your ${settings-ta
     (scale :class "music-progress" :min 0 :max 100 :value {island-state.progress} :onchange "~/.config/eww/scripts/media.py seek {}")
     (box :class "music-controls" :space-evenly false :spacing 18 :halign "center"
       (button :class "transport" :onclick "playerctl previous" :tooltip "Previous track"
-        (image :path {island-art.art != "" ? "${glyph-assets}/previous.svg" : "${glyph-assets}/previous-dark.svg"} :image-width 24 :image-height 24))
+        (image :path "${glyph-assets}/previous.svg" :image-width 24 :image-height 24))
       (button :class "transport-main" :onclick "playerctl play-pause" :tooltip "Play / pause"
-        (image :path {island-state.status == "Playing" ? "${glyph-assets}/pause.svg" : "${glyph-assets}/play.svg"} :image-width 24 :image-height 24))
+        (image :path {island-state.status == "Playing" ? "${glyph-assets}/pause-dark.svg" : "${glyph-assets}/play-dark.svg"} :image-width 24 :image-height 24))
       (button :class "transport" :onclick "playerctl next" :tooltip "Next track"
-        (image :path {island-art.art != "" ? "${glyph-assets}/next.svg" : "${glyph-assets}/next-dark.svg"} :image-width 24 :image-height 24))))))
+        (image :path "${glyph-assets}/next.svg" :image-width 24 :image-height 24))))))
 
 (defvar launcher-query "")
+(defvar launcher-power-open false)
 (defpoll launcher-weather :interval "60s" :initial '{"temperature":"—","location":"Chandigarh","status":"Local weather"}'
   "~/.config/eww/scripts/launcher-weather.py")
 
@@ -379,57 +362,65 @@ Review available system updates before installing." : "Manage your ${settings-ta
   :geometry (geometry :x "40px" :y "40px" :width "620px" :height "530px" :anchor "bottom left")
   :stacking "overlay"
   :focusable true
-  (box :class "launcher-window" :orientation "v" :space-evenly false :spacing 16
+  (box :class "launcher-shell" :space-evenly false :spacing 12
+  (box :class "launcher-window" :width 578 :orientation "v" :space-evenly false :spacing 16
     (box :class "launcher-search" :orientation "h" :space-evenly false :spacing 12
       (label :class "launcher-search-icon" :text "⌕")
       (overlay :hexpand true
         (input :class "launcher-input" :value "" :hexpand true :timeout "2s"
           :onchange "~/.config/eww/scripts/launcher-search.py '{}'"
-          :onaccept "eww --no-daemonize close app-launcher; ~/.config/glyphos/scripts/search.py launch '{}'")
-        (label :class "launcher-placeholder" :markup "<span font_family='Ndot 55'>Search apps, files, or settings...</span>"
+          :onaccept "~/.config/eww/scripts/modal.py launcher-close; ~/.config/glyphos/scripts/search.py launch '{}'")
+        (label :class "launcher-placeholder" :markup "<span font_family='Inter'>Search apps, files, or settings...</span>"
           :visible {launcher-query == ""} :halign "start" :valign "center")))
     (box :class "launcher-header" :orientation "h" :space-evenly false :spacing 10
       (box :hexpand true :halign "start" (glyphos-brand))
-      (button :class "launcher-close" :onclick "eww --no-daemonize close app-launcher" "×"))
+      (button :class "launcher-close" :onclick "~/.config/eww/scripts/modal.py launcher-close" "×"))
     (box :class "launcher-body" :orientation "h" :space-evenly false :spacing 18
-      (box :class "launcher-sidebar" :orientation "v" :space-evenly false :spacing 6
-        (button :class "sidebar-item" :onclick "~/.config/eww/scripts/modal.py power" (label :markup "<span font_family='Ndot 55'>⏻  Power</span>"))
+      (box :class "launcher-sidebar" :orientation "v" :space-evenly false :spacing 3
+        (button :class "sidebar-item" :timeout "3s" :onclick "~/.config/eww/scripts/modal.py power" (label :markup "<span font_family='Inter'>⏻  Power</span>"))
         (box :orientation "h" :space-evenly false :spacing 6
-          (button :class "sidebar-item" :onclick "eww --no-daemonize open settings-window; eww --no-daemonize close app-launcher" :hexpand true (label :markup "<span font_family='Ndot 55'>⚙  Settings</span>"))
+          (button :class "sidebar-item" :onclick "eww --no-daemonize open settings-window; ~/.config/eww/scripts/modal.py launcher-close" :hexpand true (label :markup "<span font_family='Inter'>⚙  Settings</span>"))
           (button :class "launcher-more" :onclick {more-open ? "eww --no-daemonize update more-open=false" : "eww --no-daemonize update more-open=true"}
             {more-open ? "▾" : "▸"}))
         (revealer :reveal more-open :transition "slidedown"
           (box :orientation "v" :space-evenly false :spacing 6
-            (button :class "sidebar-item" :onclick "eww --no-daemonize open device-manager; eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Devices</span>"))
-            (button :class "sidebar-item" :onclick "eww --no-daemonize open power-display; eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Display &amp; Power</span>"))))
-        (button :class "sidebar-item" :onclick "eww --no-daemonize open task-manager; eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Task Manager</span>"))
-        (button :class "sidebar-item" :onclick "eww --no-daemonize open doc-reader; eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Documents</span>"))
-        (button :class "sidebar-item" :onclick "eww --no-daemonize open screen-tools; eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Screenshot</span>"))
-        (button :class "sidebar-item" :onclick "eww --no-daemonize open calendar-tasks; eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Calendar</span>"))
-        (button :class "sidebar-item" :onclick "xdg-open https://mail.google.com & eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Gmail</span>"))
-        (button :class "sidebar-item" :onclick "spotify & eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>Music Player</span>"))
-        (button :class "sidebar-allapps" :onclick "eww --no-daemonize close app-launcher" (label :markup "<span font_family='Ndot 55'>All Apps</span>")))
+            (button :class "sidebar-item" :onclick "eww --no-daemonize open device-manager; ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Devices</span>"))
+            (button :class "sidebar-item" :onclick "eww --no-daemonize open power-display; ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Display &amp; Power</span>"))))
+        (button :class "sidebar-item" :onclick "eww --no-daemonize open task-manager; ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Task Manager</span>"))
+        (button :class "sidebar-item" :onclick "eww --no-daemonize open doc-reader; ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Documents</span>"))
+        (button :class "sidebar-item" :onclick "eww --no-daemonize open screen-tools; ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Screenshot</span>"))
+        (button :class "sidebar-item" :onclick "eww --no-daemonize open calendar-tasks; ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Calendar</span>"))
+        (button :class "sidebar-item" :onclick "xdg-open https://mail.google.com & ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Gmail</span>"))
+        (button :class "sidebar-item" :onclick "spotify & ~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>Music Player</span>"))
+        (button :class "sidebar-allapps" :onclick "~/.config/eww/scripts/modal.py launcher-close" (label :markup "<span font_family='Inter'>All Apps</span>")))
       (box :class "launcher-grid" :orientation "v" :space-evenly false :spacing 12 :hexpand true :valign "start"
-        (label :class "launcher-section-title" :markup "<span font_family='Ndot 55'>PINNED</span>" :halign "start")
+        (label :class "launcher-section-title" :markup "<span font_family='Inter'>PINNED</span>" :halign "start")
         (box :orientation "h" :space-evenly true :spacing 12
           (box :class "tile launcher-weather-card" :orientation "v" :space-evenly false :spacing 8
-            (label :class "tile-value" :markup "<span font_family='Ndot 55'>${launcher-weather.temperature}</span>" :halign "start")
+            (label :class "tile-value" :markup "<span font_family='Inter'>${launcher-weather.temperature}</span>" :halign "start")
             (label :class "tile-label" :text {launcher-weather.location} :halign "start")
             (label :class "launcher-weather-status" :text {launcher-weather.status} :halign "start"))
-          (button :class "tile" :onclick "dolphin ~/Documents & eww --no-daemonize close app-launcher"
+          (button :class "tile" :onclick "dolphin ~/Documents & ~/.config/eww/scripts/modal.py launcher-close"
             (box :orientation "v" :space-evenly false :spacing 12
               (image :path "/usr/share/icons/Papirus-Light/64x64/apps/system-file-manager.svg" :image-width 36 :image-height 36)
-              (label :class "tile-label" :markup "<span font_family='Ndot 55'>Documents</span>"))))
+              (label :class "tile-label" :markup "<span font_family='Inter'>Documents</span>"))))
         (box :orientation "h" :space-evenly true :spacing 12
-          (button :class "tile" :onclick "dolphin & eww --no-daemonize close app-launcher"
+          (button :class "tile" :onclick "dolphin & ~/.config/eww/scripts/modal.py launcher-close"
             (box :orientation "v" :space-evenly false :spacing 12
               (image :path "/usr/share/icons/Papirus-Light/64x64/apps/system-file-manager.svg" :image-width 36 :image-height 36)
-              (label :class "tile-label" :markup "<span font_family='Ndot 55'>Files</span>")))
-          (button :class "tile" :onclick "brave & eww --no-daemonize close app-launcher"
+              (label :class "tile-label" :markup "<span font_family='Inter'>Files</span>")))
+          (button :class "tile" :onclick "brave & ~/.config/eww/scripts/modal.py launcher-close"
             (box :orientation "v" :space-evenly false :spacing 12
               (image :path "/usr/share/icons/Papirus/64x64/apps/brave-browser.svg" :image-width 36 :image-height 36)
-              (label :class "tile-label" :markup "<span font_family='Ndot 55'>Internet</span>"))))
-        (label :class "launcher-search-result" :text search-preview :visible {launcher-query != ""} :halign "start" :wrap true :limit-width 42)))))
+              (label :class "tile-label" :markup "<span font_family='Inter'>Internet</span>"))))
+        (label :class "launcher-search-result" :text search-preview :visible {launcher-query != ""} :halign "start" :wrap true :limit-width 42))))
+    (revealer :reveal launcher-power-open :transition "slideleft" :duration "160ms" :valign "start"
+      (box :class "launcher-power-menu" :orientation "v" :space-evenly false :spacing 6 :width 200 :valign "start"
+        (label :class "launcher-power-title" :text "POWER" :halign "start")
+        (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py shutdown" "⏻  Shut Down")
+        (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py reboot" "⟳  Restart")
+        (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py logout" "↪  Log Out")
+        (button :class "sidebar-item" :onclick "eww --no-daemonize update launcher-power-open=false" "✕  Back")))))
 
 (defwindow power-menu
   :namespace "glyphos-power-menu"
@@ -437,11 +428,11 @@ Review available system updates before installing." : "Manage your ${settings-ta
   :geometry (geometry :x "500px" :y "100px" :width "200px" :height "160px" :anchor "bottom left")
   :stacking "overlay"
   :focusable false
-  (box :class "launcher-sidebar" :orientation "v" :space-evenly false :spacing 4
+  (box :class "launcher-power-menu" :orientation "v" :space-evenly false :spacing 4
     (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py shutdown" "⏻  Shut Down")
     (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py reboot" "⟳  Restart")
     (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py logout" "↪  Log Out")
-    (button :class "sidebar-item" :timeout "5s" :onclick "~/.config/eww/scripts/modal.py close" "✕  Cancel")))
+    (button :class "sidebar-item" :timeout "5s" :onclick "eww --no-daemonize close power-menu" "✕  Cancel")))
 
 (defpoll cpu-usage :interval "2s" "top -bn1 | grep 'Cpu(s)' | awk '{print 100-$8}' | cut -d'.' -f1 || echo 0")
 (defpoll mem-usage :interval "2s" "free | awk '/Mem:/ {printf \"%.0f\", $3/$2*100}'")
@@ -516,7 +507,7 @@ Review available system updates before installing." : "Manage your ${settings-ta
       (label :class "ndot-heading" :markup "<span font_family='Ndot 55'>${launcher-weather.temperature}</span>"))
     (box :space-evenly false :spacing 30
       (label :class "ndot-heading" :markup "<span font_family='Ndot 55'>CLOCK</span>")
-      (image :path "${glyph-assets}/cloud-dark.svg" :image-width 108 :image-height 62)
+      (image :path "assets/cloud.svg" :image-width 108 :image-height 62)
       (label :class "desktop-city" :text {launcher-weather.location} :valign "start"))))
 
 (defpoll usb-devices :interval "5s" "lsusb | grep -v 'Linux Foundation' | cut -d' ' -f7- | head -6")

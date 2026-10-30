@@ -79,9 +79,76 @@ def fetch(state):
  except Exception:return ''
  finally:temp.unlink(missing_ok=True)
 
+def blurred_cover(path):
+ if not path:return ''
+ try:
+  source=Path(path);info=source.stat()
+  key=hashlib.sha256((str(source)+str(info.st_mtime_ns)+str(info.st_size)+'dock-blur-v1').encode()).hexdigest()
+  target=CACHE/(key+'.dock.jpg')
+  if target.exists() and valid_image(target):return str(target)
+  temporary=target.with_name(target.stem+'.tmp.jpg')
+  try:
+   # Prefer bounded in-process work; spawning FFmpeg can exceed its timeout on a busy desktop.
+   try:
+    from PIL import Image,ImageOps,ImageFilter
+    with Image.open(source) as image:
+     if image.width*image.height>32_000_000:return ''
+     image=ImageOps.fit(image.convert('RGB'),(256,256)).filter(ImageFilter.GaussianBlur(14))
+     image.save(temporary,'JPEG',quality=88)
+    temporary.replace(target);return str(target)
+   except (ImportError,OSError,ValueError):pass
+   result=subprocess.run(['ffmpeg','-v','error','-nostdin','-threads','1','-filter_threads','1','-i',str(source),'-vf','scale=256:256:force_original_aspect_ratio=increase,crop=256:256,gblur=sigma=14','-frames:v','1','-y',str(temporary)],capture_output=True,timeout=8)
+   if result.returncode==0 and valid_image(temporary):temporary.replace(target);return str(target)
+  finally:temporary.unlink(missing_ok=True)
+ except (OSError,subprocess.SubprocessError):pass
+ return ''
+def resolve(state):
+ cover=fetch(state)
+ return cover,blurred_cover(cover)
+def dock_style(path):
+ if not path:return ''
+ return 'background-color:#e9e9e4; background-image:linear-gradient(rgba(0,0,0,0.22),rgba(0,0,0,0.22)),url("'+Path(path).as_uri()+'");'
+
 def style(path):
  if not path:return 'background-color:#000000; background-image:none;'
  return 'background-color:#000000; background-image:linear-gradient(rgba(0,0,0,0.10),rgba(0,0,0,0.10)),url("'+Path(path).as_uri()+'");'
+class ArtworkPresenter:
+ """Keep the last good cover during handoff; one worker and explicit blur retries."""
+ def __init__(self,submit):
+  self.submit=submit;self.key=None;self.state={};self.future=None;self.job_key=None
+  self.resolved_key=None;self.blur_key=None;self.shown='';self.dock='';self.pane=0
+  self.styles=[style(''),style('')];self.retry_at=0;self.changed=0;self.inactive_at=None
+ def tick(self,state,now=None,wall=None):
+  now=time.monotonic() if now is None else now;wall=time.time() if wall is None else wall
+  current=tuple(state.get(k,'') for k in ('url','title','artist','art')) if state.get('status') in ('Playing','Paused') and wall-state.get('updated',0)<15 else None
+  if current is None:
+   if self.inactive_at is None:self.inactive_at=now
+   if now-self.inactive_at<2:current=self.key
+  else:self.inactive_at=None
+  if current!=self.key:
+   self.key=current;self.changed=now;self.retry_at=now
+   if current:self.state=dict(state)
+   else:
+    self.shown='';self.dock='';self.pane=1-self.pane;self.styles[self.pane]=style('')
+    self.resolved_key=None;self.blur_key=None
+  if self.future and self.future.done():
+   try:path,blurred=self.future.result()
+   except Exception:path,blurred='',''
+   self.future=None
+   if self.job_key==self.key and self.key is not None:
+    if path:
+     self.resolved_key=self.key
+     if path!=self.shown:self.shown=path;self.pane=1-self.pane;self.styles[self.pane]=style(path)
+    if blurred:self.dock=dock_style(blurred);self.blur_key=self.key
+    self.retry_at=now+(2 if path and not blurred else 5)
+  # A missing blur must retry even when a sharp cover is already available.
+  if self.key is not None and self.future is None and now>=self.retry_at and (self.resolved_key!=self.key or self.blur_key!=self.key):
+   self.job_key=self.key;self.future=self.submit(dict(self.state))
+  if self.key is not None and now-self.changed>30:
+   if self.resolved_key!=self.key and self.shown:self.shown='';self.pane=1-self.pane;self.styles[self.pane]=style('')
+   if self.blur_key!=self.key:self.dock=''
+  return dict(a=self.styles[0],b=self.styles[1],pane=self.pane,art=self.shown,dock=self.dock)
+
 if __name__=='__main__':
  if '--prepare' in sys.argv:
   sys.path.insert(0,str(HOME/'.config/glyphos/scripts'));from lyrics import normalize
@@ -98,20 +165,11 @@ if __name__=='__main__':
    results=list(pool.map(prepare,paths))
   print(json.dumps({'tracks_checked':len(paths),'artwork_available':sum(results),'black_fallback':len(paths)-sum(results)}),flush=True)
   raise SystemExit(0)
- previous=None;key=None;future=None;pane=0;styles=[style(''),style('')];shown='';retry_at=0
+ previous=None;presenter=ArtworkPresenter(lambda state:POOL.submit(resolve,state))
  while True:
   try:state=json.loads((HOME/'.local/state/glyphos/island-media.json').read_text())
   except (OSError,ValueError):state={}
-  current=(state.get('url',''),state.get('title',''),state.get('artist',''),state.get('art','')) if state.get('status') in ('Playing','Paused') and time.time()-state.get('updated',0)<5 else None
-  if current!=key:
-   key=current;future=POOL.submit(fetch,dict(state)) if current else None;retry_at=time.monotonic()+30
-   if shown:shown='';pane=1-pane;styles[pane]=style('')
-  if current and not shown and future is None and time.monotonic()>=retry_at:
-   future=POOL.submit(fetch,dict(state));retry_at=time.monotonic()+30
-  if future and future.done():
-   path=future.result();future=None
-   if path!=shown:shown=path;pane=1-pane;styles[pane]=style(path)
-  output=json.dumps(dict(a=styles[0],b=styles[1],pane=pane,art=shown))
+  output=json.dumps(presenter.tick(state))
   if output!=previous:
    snapshot=HOME/'.local/state/glyphos/island-art.json';tmp=snapshot.with_suffix('.tmp');tmp.write_text(output);tmp.replace(snapshot)
    print(output,flush=True);previous=output

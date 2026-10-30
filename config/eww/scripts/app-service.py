@@ -243,7 +243,8 @@ def confirm(key):
  value=entry(key)
  value=dict(value,key=key,pinned=False,supported=True,can_uninstall=bool(value['flatpak']),error='')
  if not value['flatpak']:raise ValueError('Only user Flatpak applications can be uninstalled here')
- eww('close','taskbar-context');eww('update','app-context='+json.dumps(value));eww('open','app-uninstall-confirm')
+ if any(line.startswith('taskbar-context:') for line in call('eww','--no-daemonize','--config',str(BASE),'active-windows').splitlines()):eww('close','taskbar-context')
+ eww('update','app-context='+json.dumps(value));eww('open','app-uninstall-confirm')
 
 def context_action(action,key):
  if action in ('pin','unpin'):

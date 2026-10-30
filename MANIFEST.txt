@@ -18,6 +18,7 @@ assets/nothing-logo.jpg
 assets/wallpaper-glyphos.png
 assets/wallpaper.jpg
 config/eww/SHORTCUTS.md
+config/eww/assets/ai-dark.svg
 config/eww/assets/ai.svg
 config/eww/assets/battery-charging-dark.svg
 config/eww/assets/battery-dark.svg
@@ -58,6 +59,7 @@ config/eww/assets/cloud.svg
 config/eww/assets/control-close.svg
 config/eww/assets/control-maximize.svg
 config/eww/assets/control-minimize.svg
+config/eww/assets/dot-field-light.svg
 config/eww/assets/dot-field.svg
 config/eww/assets/earbuds.svg
 config/eww/assets/files-dark.svg
@@ -127,6 +129,7 @@ config/eww/scripts/app_service.py
 config/eww/scripts/clipboard-history.py
 config/eww/scripts/control-center.py
 config/eww/scripts/desktop-status.py
+config/eww/scripts/dock-service.py
 config/eww/scripts/island-action.py
 config/eww/scripts/island-art.py
 config/eww/scripts/island-lyrics-listen.py
@@ -191,6 +194,7 @@ config/glyphos/scripts/mobile_sftp.py
 config/glyphos/scripts/phone_mesh.py
 config/glyphos/scripts/picker.py
 config/glyphos/scripts/queue_popup.py
+config/glyphos/scripts/screenshot.sh
 config/glyphos/scripts/search.py
 config/glyphos/scripts/snap_engine.py
 config/glyphos/scripts/start-services.sh
@@ -203,6 +207,28 @@ config/glyphos/scripts/wifi_credentials.py
 config/glyphos/themes/current.rasi
 config/glyphos/themes/hyprland.conf
 config/glyphos/themes/island-dock.scss
+config/glyphos/themes/layouts/README.md
+config/glyphos/themes/layouts/charcoal/SHA256SUMS.json
+config/glyphos/themes/layouts/charcoal/layout.json
+config/glyphos/themes/layouts/charcoal/reference/eww/eww.scss
+config/glyphos/themes/layouts/charcoal/reference/eww/eww.yuck
+config/glyphos/themes/layouts/charcoal/reference/eww/hyprpaper.conf
+config/glyphos/themes/layouts/charcoal/reference/eww/scripts/dock-service.py
+config/glyphos/themes/layouts/charcoal/reference/eww/scripts/set-wallpaper.sh
+config/glyphos/themes/layouts/charcoal/reference/eww/scripts/start-desktop.sh
+config/glyphos/themes/layouts/charcoal/reference/glyphos/daemons/desktop.py
+config/glyphos/themes/layouts/charcoal/reference/glyphos/themes/light.scss
+config/glyphos/themes/layouts/charcoal/wallpaper.png
+config/glyphos/themes/layouts/classic-light/SHA256SUMS.json
+config/glyphos/themes/layouts/classic-light/layout.json
+config/glyphos/themes/layouts/classic-light/reference/eww/eww.scss
+config/glyphos/themes/layouts/classic-light/reference/eww/eww.yuck
+config/glyphos/themes/layouts/classic-light/reference/eww/hyprpaper.conf
+config/glyphos/themes/layouts/classic-light/reference/eww/scripts/set-wallpaper.sh
+config/glyphos/themes/layouts/classic-light/reference/eww/scripts/start-desktop.sh
+config/glyphos/themes/layouts/classic-light/reference/glyphos/daemons/desktop.py
+config/glyphos/themes/layouts/classic-light/reference/glyphos/themes/light.scss
+config/glyphos/themes/layouts/classic-light/wallpaper.png
 config/glyphos/themes/light.scss
 config/glyphos/window-memory.conf
 config/hypr/assets/lock/album.png
@@ -348,6 +374,7 @@ screenshots/day-08-2026-10-08/file-explorer.png
 screenshots/day-08-2026-10-08/lyrics.png
 screenshots/day-08-2026-10-08/start-menu.png
 system/plasmalogin.conf.d/90-glyphos-autologin.conf.example
+tests/artwork_handoff_test.py
 tests/file_manager_mesh_test.py
 tests/fullscreen_island_test.py
 tests/global_artwork_test.py
@@ -356,4 +383,5 @@ tests/lyrics_web_test.py
 tests/media_queue_test.py
 tests/mobile_storage_test.py
 tests/snap_layout_test.py
+tests/start_menu_power_test.py
 tests/taskbar_dismiss_test.py

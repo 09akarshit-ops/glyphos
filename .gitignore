@@ -39,3 +39,6 @@ config/glyphos/themes/dark-assets/
 # Private mobile SSH profiles and keys
 config/glyphos/keys/
 config/glyphos/mesh/phone.json
+
+# Personal dock layout and preferences
+config/glyphos/dock.json

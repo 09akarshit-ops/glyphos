@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-10-30 — dock customization, dark desktop and Start refinement
+
+- Add persistent dock app lists, ordering, hiding/restoration, color preferences,
+  application selection, icon removal, and confirmed uninstall flows. Super+Alt+D
+  restores Dock Options. Uninstall is disabled for protected components and shortcuts.
+- Fix actual icon/gap right-click handling and premature layer-focus dismissal;
+  retain circular icons and restore the original light dock palette.
+- Add Settings, Music and Photos to the dock; remove the separate desktop app row.
+- Use a clean charcoal wallpaper derived from the supplied reference, with baked-in
+  UI and the corner logo removed. Render live white weather/clock lettering.
+- Match Now Playing to the reference card, raise it 24px, and fix rounded shadow
+  clipping. Give the player a brighter glow and the dock a restrained glow.
+- Restore the player artwork layer and share a cached blurred cover with the dock.
+  Preserve artwork during handoff, retry blur failures, reject stale results and
+  bound resolver work to one in-flight request.
+- Preserve Classic Light and Charcoal reference snapshots for future theme work.
+- Refactor Start to dark frosted search/tiles, compact transparent sidebar items,
+  standard Inter typography and an upward entrance. Attach Power options inline
+  without closing Start. Preserve all launcher commands and input handlers.
+- Make Super+P save PNG screenshots to Pictures, copy them with image/png MIME,
+  and notify on success or partial failure.
+
+Validation: fixture tests for dock persistence/order/removal/color, Start/Power
+lifecycle, artwork handoff/retry/stale-result handling and screenshot success/failure
+paths; real icon/gap right-click checks and visual inspection of rounded glow,
+artwork and Start. No application uninstall or destructive power action was tested.
+Current artwork was inspected without issuing playback controls. Personal dock
+preferences, clipboard contents, credentials and runtime media data remain excluded.
+
 ## 2026-10-29 — boot, taskbar and file navigation fixes
 
 - Add VLC queue controls to Now Playing and the expanded Island, with selectable
