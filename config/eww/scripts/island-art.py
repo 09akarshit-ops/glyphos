@@ -5,6 +5,8 @@ from pathlib import Path
 from urllib.parse import urlparse,unquote,urlencode
 from urllib.request import Request,urlopen
 HOME=Path.home();CACHE=HOME/'.cache/glyphos/island-art';CACHE.mkdir(parents=True,exist_ok=True)
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'glyphos/scripts'))
+from media_policy import excluded_media
 POOL=concurrent.futures.ThreadPoolExecutor(max_workers=1)
 def valid_image(path):
  try:
@@ -29,6 +31,7 @@ def download(url,target):
  finally:temporary.unlink(missing_ok=True)
 
 def fetch(state):
+ if excluded_media(state.get('player',''),state):return ''
  parsed=urlparse(state.get('url',''));path=Path(unquote(parsed.path)) if parsed.scheme=='file' else None
  identity=str(path) if path else json.dumps([state.get(k,'') for k in ('url','title','artist','art')])
  key=hashlib.sha256(identity.encode()).hexdigest();target=CACHE/(key+'.jpg')
@@ -110,8 +113,8 @@ def dock_style(path):
  return 'background-color:#e9e9e4; background-image:linear-gradient(rgba(0,0,0,0.22),rgba(0,0,0,0.22)),url("'+Path(path).as_uri()+'");'
 
 def style(path):
- if not path:return 'background-color:#000000; background-image:none;'
- return 'background-color:#000000; background-image:linear-gradient(rgba(0,0,0,0.10),rgba(0,0,0,0.10)),url("'+Path(path).as_uri()+'");'
+ if not path:return 'background-color:#181a1d; background-image:linear-gradient(135deg,#263e59,#181a1d);'
+ return 'background-color:#181a1d; background-image:linear-gradient(rgba(0,0,0,0.10),rgba(0,0,0,0.10)),url("'+Path(path).as_uri()+'");'
 class ArtworkPresenter:
  """Keep the last good cover during handoff; one worker and explicit blur retries."""
  def __init__(self,submit):
@@ -120,7 +123,9 @@ class ArtworkPresenter:
   self.styles=[style(''),style('')];self.retry_at=0;self.changed=0;self.inactive_at=None
  def tick(self,state,now=None,wall=None):
   now=time.monotonic() if now is None else now;wall=time.time() if wall is None else wall
-  current=tuple(state.get(k,'') for k in ('url','title','artist','art')) if state.get('status') in ('Playing','Paused') and wall-state.get('updated',0)<15 else None
+  excluded=excluded_media(state.get('player',''),state)
+  current=tuple(state.get(k,'') for k in ('url','title','artist','art')) if not excluded and state.get('status') in ('Playing','Paused') and wall-state.get('updated',0)<15 else None
+  if excluded:self.inactive_at=now-2
   if current is None:
    if self.inactive_at is None:self.inactive_at=now
    if now-self.inactive_at<2:current=self.key

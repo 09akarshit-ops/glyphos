@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 base=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-wallpaper="$HOME/Pictures/wallpaper5-clean-no-logo.png"
+wallpaper="$HOME/Pictures/navy-blue.png"
 [[ -r "$wallpaper" ]] || { echo "Missing wallpaper: $wallpaper" >&2; exit 1; }
 exec 9>"$base/.wallpaper.lock"
 flock -n 9 || exit 0

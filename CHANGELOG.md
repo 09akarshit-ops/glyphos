@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-11-02 — desktop integration, media policy and Night Light
+
+- Add a right-click Night Light intensity slider inside Control Center. Persist
+  intensity, coalesce rapid changes, and restore the previous shader on disable.
+- Add Codex and Spotify dock icons; unify white icon styling, hover lift and
+  running-window indicators. Keep transparent individual icon backgrounds.
+- Route system window controls to the Settings layer and remove duplicate controls.
+- Add Spotify F11 fullscreen handling with the Island retained above fullscreen.
+- Exclude YouTube/Instagram and unidentified browser media from music artwork and
+  lyrics; preserve native players and identified Spotify web playback.
+- Refine idle glass surfaces, playback artwork handoff and white desktop lettering.
+- Include the selected wallpaper and document its awww/swww runtime command.
+
+Validation: Night Light shader/restoration tests; dock running-app detection;
+Settings control routing; Spotify fullscreen restoration; browser media filtering;
+Start/Power lifecycle; artwork handoff; fullscreen Island; VLC queue guards and snap
+partitions. Live Night Light and screenshot verification are recorded in the gallery.
+
+
 ## 2026-10-30 — dock customization, dark desktop and Start refinement
 
 - Add persistent dock app lists, ordering, hiding/restoration, color preferences,

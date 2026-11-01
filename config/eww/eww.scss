@@ -791,3 +791,49 @@ window {background-color:transparent; background-image:none; box-shadow:none;}
 .launcher-power-menu {padding:12px; border-radius:16px;}
 .launcher-shell .launcher-power-menu {margin-top:148px;}
 .launcher-power-title {font-family:"Inter","sans-serif"; font-size:12px; font-weight:600; color:#dce2e9; padding:2px 0 5px;}
+
+
+/* Bare app glyphs over the dock artwork; retain transparent borders for stable sizing. */
+.glass-dock .dock-icon, .glass-dock .dock-icon:hover, .glass-dock .dock-icon:active {background:transparent; background-image:none; border:1px solid transparent; box-shadow:none;}
+
+/* Smooth magnification/lift within stable dock slots; running markers stay anchored. */
+.glass-dock .dock-glyph {-gtk-icon-transform:translateY(0px) scale(1); transition:-gtk-icon-transform 180ms cubic-bezier(.2,.7,.2,1);}
+.glass-dock .dock-icon:hover .dock-glyph {-gtk-icon-transform:translateY(-12px) scale(1.22);}
+.glass-dock .dock-icon:active .dock-glyph {-gtk-icon-transform:translateY(-8px) scale(1.14);}
+.dock-running-bar {min-width:18px; min-height:3px; background:transparent; border:none; border-radius:2px; margin:0 0 2px;}
+.dock-running-bar.running {background:#ffffff;}
+
+/* Dock matches the idle Now Playing surface with permanent white glyphs. */
+.glass-dock {background-color:#181a1d; background-image:none;}
+
+/* Shared idle charcoal surface across the dock, player and Island. */
+.island-pill, .dynamic-island, .fullscreen-island .island-pill {background-color:#181a1d; color:#ffffff;}
+
+/* Black desktop headings contrast with the muted navy wallpaper. */
+.desktop-heading label, .desktop-heading .ndot-heading, .desktop-heading .desktop-city {color:#000000;}
+
+/* Idle dock depth; live playback can supply the shared blurred cover. */
+.glass-dock {background-color:#181a1d; background-image:linear-gradient(135deg,#263e59,#181a1d);}
+
+/* Match the dock gradient only while the player has no artwork. */
+.nowplaying-art.idle .music-card {background-color:#181a1d; background-image:linear-gradient(135deg,#263e59,#181a1d);}
+
+/* The compact and fullscreen Island share the idle navy-to-charcoal palette. */
+.island-pill, .fullscreen-island .island-pill {background-image:linear-gradient(135deg,#263e59,#181a1d);}
+
+/* Wallpaperfinal desktop glass surfaces; no layout or artwork bindings are changed. */
+.np-widget,
+.nowplaying-art .music-card,
+.nowplaying-art.idle .music-card,
+.nowplaying-art.has-artwork .music-card,
+.glass-dock {
+ background-color:rgba(15, 15, 15, 0.55);
+ border:1px solid rgba(255, 255, 255, 0.12);
+ box-shadow:0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* White desktop NDOT lettering on wallpaperfinal. */
+.desktop-heading .ndot-heading {color:#ffffff;}
+
+// Night Light: inline intensity controls, no focus-taking popup.
+.nightlight-intensity { padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.09); border: 1px solid rgba(128,128,128,0.18); }

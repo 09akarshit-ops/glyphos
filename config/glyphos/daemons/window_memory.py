@@ -16,7 +16,7 @@ class Memory:
         path=Path.home()/'.config/glyphos/window-memory.conf'
         content='# Generated from saved floating window geometry.\n'
         for name,value in sorted(self.saved.items()):
-            if value.get('floating') and '\n' not in name and ',' not in name:
+            if name.lower()!='spotify' and value.get('floating') and '\n' not in name and ',' not in name:
                 content+='windowrule = match:class ^'+re.escape(name)+'$, maximize off\n'
         if not path.exists() or path.read_text()!=content:
             path.write_text(content)
@@ -24,6 +24,7 @@ class Memory:
     def restore(self,address):
         client=next((c for c in hypr('clients') if c['address']==address),None)
         if not client:return
+        if client.get('class','').lower()=='spotify':return
         saved=self.saved.get(client['class'])
         if not saved or not saved.get('floating') or client.get('fullscreen'):return
         if client['workspace']['name'].startswith('special:'):return
@@ -40,7 +41,7 @@ class Memory:
     def snapshot(self):
         clients=hypr('clients');changed=False
         for c in clients:
-            if c['address'] in self.pending or not c.get('mapped') or not c.get('class') or c['workspace']['name'].startswith('special:') or c['class'].lower() in ('rofi','glyphos-palette','glyphos-verification'):continue
+            if c['address'] in self.pending or not c.get('mapped') or not c.get('class') or c['workspace']['name'].startswith('special:') or c['class'].lower() in ('rofi','glyphos-palette','glyphos-verification','spotify'):continue
             if c.get('fullscreen'):continue
             value=dict(workspace=c['workspace']['id'],x=c['at'][0],y=c['at'][1],width=c['size'][0],height=c['size'][1],floating=c.get('floating',False))
             if self.saved.get(c['class'])!=value:self.saved[c['class']]=value;changed=True

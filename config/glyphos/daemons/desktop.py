@@ -10,6 +10,7 @@ from common import HOME, BASE, STATE, call, hypr, read, write, update
 from window_memory import Memory
 from live_island import Island
 from fullscreen_island import FullscreenIsland
+from settings_controls import visible_settings
 from actions import radio_rows
 from theme import apply as theme
 POOL=concurrent.futures.ThreadPoolExecutor(max_workers=3)
@@ -60,7 +61,7 @@ class Desktop:
         for line in lines:
             event,_,payload=line.decode(errors='replace').partition('>>')
             if event in ('fullscreen','activewindow','activewindowv2','workspace','workspacev2','focusedmon','closewindow'):self.fullscreen_dirty=True
-            if event in ('activewindow','activewindowv2','windowtitle','windowtitlev2'):self.context_dirty=True
+            if event in ('activewindow','activewindowv2','windowtitle','windowtitlev2','openlayer','closelayer'):self.context_dirty=True
             if event=='openwindow':
                 address='0x'+payload.split(',')[0].removeprefix('0x');self.memory.opened(address)
             if event=='closewindow':self.memory.pending.pop('0x'+payload.removeprefix('0x'),None)
@@ -74,6 +75,9 @@ class Desktop:
         value=dict(glyph_context=mode,glyph_title=active.get('title','GlyphOS'),glyph_address=active.get('address',''),glyph_focus=read(STATE/'focus.json',{}).get('enabled',False),
             active_client={'address':active.get('address',''),'title':active.get('title',''),'visible':bool(active.get('address')) and active.get('mapped',True) and not active.get('hidden',False)},
             glyph_dark=dark,glyph_assets=str(BASE/'themes/dark-assets') if dark else 'assets')
+        settings=visible_settings(hypr('layers'))
+        if settings:
+            value['active_client']={'address':'','title':'Glyph Control Center','visible':True,'panel':settings}
         if value!=self.last_context or time.monotonic()-self.context_sent>15:
             update(**value);self.last_context=value;self.context_sent=time.monotonic()
         if active.get('address') and self.last_active is not None and self.last_active!=active.get('address'):

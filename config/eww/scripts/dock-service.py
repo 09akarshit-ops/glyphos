@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Persistent dock items and compact context menus; no shell-built app commands."""
-import fcntl,json,os,re,subprocess,sys,time
+import fcntl,json,os,re,subprocess,sys,time,socket,select
 from pathlib import Path
 BASE=Path(__file__).resolve().parent.parent
 STATE=Path.home()/'.config/glyphos/dock.json'
-DEFAULTS=[{'id':key,'name':name,'icon':icon,'builtin':key} for key,name,icon in [('home','Glyph App Store','glyphos.svg'),('files','Files','files.svg'),('chat','WhatsApp','whatsapp.svg'),('ai','Gemini','ai.svg'),('browser','Browser','browser.svg'),('settings','Settings','settings.svg'),('music','Music','music.svg'),('photos','Photos','photos.svg')]]
+DEFAULTS=[{'id':key,'name':name,'icon':icon,'builtin':key} for key,name,icon in [('home','Glyph App Store','glyphos.svg'),('files','Files','files.svg'),('chat','WhatsApp','whatsapp.svg'),('ai','Gemini','ai.svg'),('codex','Codex','codex.svg'),('browser','Browser','browser.svg'),('settings','Settings','settings.svg'),('music','Spotify','spotify-outline.svg'),('vlc','VLC Media Player','vlc-outline.svg'),('photos','Photos','photos.svg')]]
 def load():
  try:
   value=json.loads(STATE.read_text())
@@ -14,20 +14,41 @@ def load():
 def save(value):
  STATE.parent.mkdir(parents=True,exist_ok=True)
  target=STATE.with_suffix('.tmp');target.write_text(json.dumps(value));target.replace(STATE)
-def valid_id(value):return bool(re.fullmatch(r'(?:home|files|chat|ai|browser|settings|music|photos|app-[0-9a-f]{24})',value))
+def valid_id(value):return bool(re.fullmatch(r'(?:home|files|chat|ai|codex|browser|settings|music|vlc|photos|app-[0-9a-f]{24})',value))
 def item(key):return next((i for i in load()['items'] if i['id']==key),None)
 def eww(*args):return subprocess.run(['eww','--no-daemonize',*args],capture_output=True,text=True,timeout=4)
-def snapshot(value,icons=None):
+def running(entry,clients,layers=(),extra_classes=()):
+ builtin=entry.get('builtin');desktop=Path(entry.get('desktop','')).name.removesuffix('.desktop').lower()
+ if builtin=='settings':return any(s.get('namespace') in ('glyphos-settings','glyphos-settings-app','glyphos-settings-app-max') for s in layers)
+ for client in clients:
+  if not client.get('mapped',True):continue
+  identities={str(client.get(k,'')).lower() for k in ('class','initialClass')};identity=' '.join(identities);title=str(client.get('title','')).lower()
+  browser=any(token in identity for token in ('brave','chromium','chrome','firefox'))
+  chat=any(token in identity for token in ('whatsapp','zapzap')) or (browser and 'whatsapp' in title)
+  ai='gemini' in identity or (browser and 'gemini' in title)
+  if builtin=='chat' and chat:return True
+  if builtin=='ai' and ai:return True
+  if builtin=='codex' and ('glyphos-codex' in identities or ('kitty' in identities and 'codex' in title)):return True
+  if builtin=='browser' and browser and not chat and not ai:return True
+  if builtin=='home' and any(token in identity for token in ('org.glyphos.appstore','app-store.py')):return True
+  if builtin in ('files','photos') and any(token in identity for token in ('org.glyphos.files','glyph_explorer','file_manager.py')):return True
+  if builtin=='music' and 'spotify' in identity:return True
+  if builtin=='vlc' and ('vlc' in identities or 'org.videolan.vlc' in identities):return True
+  if not builtin and (identities & ({desktop,*[c.lower() for c in extra_classes]}-{''})):return True
+ return False
+
+def snapshot(value,icons=None,clients=(),layers=(),classes=None):
  rows=[]
  for entry in value['items']:
   if not valid_id(entry.get('id','')):continue
   icon=entry.get('icon','')
   if entry.get('builtin'):
-   icon=entry.get('icon','files.svg')
+   icon={'chat':'whatsapp-white.svg','vlc':'vlc-outline.svg'}.get(entry['builtin'],entry.get('icon','files.svg'))
    icon=str(BASE/'assets'/icon)
   elif icons:icon=icons(icon)
   if not icon or not Path(icon).is_file():icon=str(BASE/'assets/files.svg')
-  rows.append(dict(id=entry['id'],name=entry.get('name','Application'),icon=icon))
+  idle_icon=BASE/'assets/dock-black'/Path(icon).name
+  rows.append(dict(id=entry['id'],name=entry.get('name','Application'),icon=icon,idle_icon=str(idle_icon) if idle_icon.is_file() else icon,running=running(entry,clients,layers,(classes or {}).get(entry.get('desktop',''),()))))
  color=value.get('color','')
  if color and not re.fullmatch(r'#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?',color):color=''
  if len(color)==9:color='rgba('+','.join(str(int(color[i:i+2],16)) for i in (1,3,5))+','+str(round(int(color[7:9],16)/255,4))+')'
@@ -36,7 +57,7 @@ def launch(key):
  entry=item(key)
  if not entry:return
  builtin=entry.get('builtin')
- commands={'home':[str(Path.home()/'.local/bin/glyph-store')],'files':[str(Path.home()/'.local/bin/glyphos-files')],'chat':['brave','--app=https://web.whatsapp.com'],'ai':[str(Path.home()/'.config/glyphos/scripts/launch-gemini.sh')],'browser':['brave'],'settings':[sys.executable,str(BASE/'scripts/settings-display.py'),'fullscreen'],'music':['spotify'],'photos':[str(Path.home()/'.local/bin/glyphos-files'),str(Path.home()/'Pictures')]}
+ commands={'home':[str(Path.home()/'.local/bin/glyph-store')],'files':[str(Path.home()/'.local/bin/glyphos-files')],'chat':['brave','--app=https://web.whatsapp.com'],'ai':[str(Path.home()/'.config/glyphos/scripts/launch-gemini.sh')],'browser':['brave'],'codex':['kitty','--class','glyphos-codex','--title','Codex','--directory',str(Path.home()/'glyphos' if (Path.home()/'glyphos').is_dir() else Path.home()),'-e',str(Path.home()/'.local/bin/codex')],'settings':[sys.executable,str(BASE/'scripts/settings-display.py'),'fullscreen'],'music':['spotify'],'vlc':['vlc'],'photos':[str(Path.home()/'.local/bin/glyphos-files'),str(Path.home()/'Pictures')]}
  if builtin:subprocess.Popen(commands[builtin],start_new_session=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
  else:
   from gi.repository import Gio
@@ -45,17 +66,45 @@ def launch(key):
 def listen():
  import gi
  gi.require_version('Gtk','3.0')
- from gi.repository import Gtk
- theme=Gtk.IconTheme.get_default()
+ from gi.repository import Gtk,Gio
+ theme=Gtk.IconTheme.get_default();icon_cache={};class_cache={}
  def icon(name):
+  if name in icon_cache:return icon_cache[name]
   if Path(name).is_file():return name
   info=theme.lookup_icon(name,48,0) if theme else None
-  return info.get_filename() if info else ''
- previous=None
+  icon_cache[name]=info.get_filename() if info else '';return icon_cache[name]
+ def query(command,old):
+  try:return json.loads(subprocess.check_output(['hyprctl',command,'-j'],text=True,stderr=subprocess.DEVNULL,timeout=2))
+  except (OSError,ValueError,subprocess.SubprocessError):return old
+ previous=None;clients=[];layers={};ipc=None;dirty=True;checked=0;reconnect_at=0
  while True:
-  result=json.dumps(snapshot(load(),icon))
+  now=time.monotonic()
+  if ipc is None and now>=reconnect_at:
+   try:
+    path=Path(os.environ['XDG_RUNTIME_DIR'])/'hypr'/os.environ['HYPRLAND_INSTANCE_SIGNATURE']/'.socket2.sock'
+    ipc=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM);ipc.settimeout(.2);ipc.connect(str(path));ipc.setblocking(False);dirty=True
+   except (OSError,KeyError):
+    if ipc:ipc.close()
+    ipc=None;reconnect_at=now+5
+  if dirty or now-checked>=5:
+   clients=query('clients',clients);layers=query('layers',layers);dirty=False;checked=now
+  value=load()
+  for entry in value['items']:
+   desktop=entry.get('desktop','')
+   if desktop and desktop not in class_cache:
+    app=Gio.DesktopAppInfo.new(desktop)
+    class_cache[desktop]=[app.get_startup_wm_class() or '',Path(app.get_executable() or '').name] if app else []
+  surfaces=[s for m in layers.values() for group in m.get('levels',{}).values() for s in group]
+  result=json.dumps(snapshot(value,icon,clients,surfaces,class_cache))
   if result!=previous:print(result,flush=True);previous=result
-  time.sleep(.4)
+  if ipc:
+   try:
+    if select.select([ipc],[],[],.4)[0]:
+     data=ipc.recv(65536)
+     if not data:ipc.close();ipc=None;reconnect_at=0
+     elif any(event in data for event in (b'openwindow>>',b'closewindow>>',b'windowtitle',b'openlayer>>',b'closelayer>>')):dirty=True
+   except OSError:ipc.close();ipc=None;reconnect_at=now+5
+  else:time.sleep(.4)
 def notify(text):subprocess.Popen(['notify-send','Dock',text])
 def native_package(entry):
  if not entry or not entry.get('desktop'):return ''
@@ -156,9 +205,9 @@ def ui(mode,key=''):
   if not entry:return
   title(entry['name']);button('Remove from Dock',lambda:finish(remove))
   from app_service import resolve,entry as registered,installed
-  app=registered(key) if key.startswith('app-') else resolve({'class':{'browser':'brave','files':'org.glyphos.Files','home':'app-store.py','music':'spotify'}.get(key,'')})
+  app=registered(key) if key.startswith('app-') else resolve({'class':{'browser':'brave','files':'org.glyphos.Files','home':'app-store.py','music':'spotify','vlc':'vlc'}.get(key,'')})
   flatpak=bool(app and app.get('flatpak') and app['flatpak'] in installed())
-  package=native_package(app) if not flatpak and (not entry.get('builtin') or key in ('browser','music')) else ''
+  package=native_package(app) if not flatpak and (not entry.get('builtin') or key in ('browser','music','vlc')) else ''
   def uninstall():
    if flatpak:
     subprocess.Popen([str(BASE/'scripts/app-service.py'),'confirm',app['key']],start_new_session=True);window.destroy();return

@@ -10,6 +10,7 @@ from gi.repository import Gtk, Gdk, GLib, GtkLayerShell, GdkPixbuf, Pango, Pango
 sys.path.insert(0,str(Path.home()/".config/eww/scripts"))
 from lyric_animation import DURATION
 from common import HOME, STATE, read, write, call, hypr
+from media_policy import excluded_media
 
 class Queue:
     def __init__(self):self.rows={};self.serial=0
@@ -49,7 +50,7 @@ class Island:
         self.window.add(self.frame)
         self.frame.connect('draw',self.draw_surface)
         provider=Gtk.CssProvider()
-        provider.load_from_data(b'.glyphos-island-window, .glyphos-island-frame { background-color: transparent; background-image: none; border: none; box-shadow: none; } .glyphos-island-surface { background-color: #000000; border-radius: 28px; border: 1px solid transparent; box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08); transition: box-shadow 180ms ease; }')
+        provider.load_from_data(b'.glyphos-island-window, .glyphos-island-frame { background-color: transparent; background-image: none; border: none; box-shadow: none; } .glyphos-island-surface { background-image:linear-gradient(135deg,#263e59,#181a1d); background-color: #181a1d; border-radius: 28px; border: 1px solid transparent; box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08); transition: box-shadow 180ms ease; }')
         self.area.get_style_context().add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         for widget,klass in [(self.window,'glyphos-island-window'),(self.frame,'glyphos-island-frame')]:
             widget.get_style_context().add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -72,7 +73,7 @@ class Island:
             try:return fn()
             except Exception:return None
         media=read(STATE/'island-media.json',{})
-        if media.get('status') in ('Playing','Paused') and time.time()-media.get('updated',0)<5:
+        if not excluded_media(media.get('player',''),media) and media.get('status') in ('Playing','Paused') and time.time()-media.get('updated',0)<5:
             length=media.get('duration',0);pos=media.get('position',0)
             progress=min(1,pos/length) if length>0 else 0
             rows.append(('media',dict(kind='media',title=media.get('title') or 'Music',subtitle=media.get('artist',''),status=media['status'],icon='♫',priority=20,progress=progress,art=Path(read(STATE/'island-art.json',{}).get('art')).as_uri() if read(STATE/'island-art.json',{}).get('art') else media.get('art'),player=media.get('player',''),duration=length)))

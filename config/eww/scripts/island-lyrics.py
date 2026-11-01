@@ -23,6 +23,7 @@ PATH = '/org/mpris/MediaPlayer2'
 import sys
 sys.path.insert(0, str(Path.home() / '.config/glyphos/scripts'))
 from lyrics import normalize, parse_lrc, lookup, offset_ms, lyric_position
+from media_policy import eligible_candidates
 
 
 def unpack(value):
@@ -104,7 +105,7 @@ class Reader:
                             candidates.append((name, props, time.monotonic()))
                     except GLib.Error:
                         continue
-                candidates.sort(key=lambda row: (row[1].get('PlaybackStatus') != 'Playing', row[0] != self.preferred))
+                candidates = eligible_candidates(candidates, self.preferred)
                 state = {}
                 if candidates:
                     name, props, sampled = candidates[0]
@@ -192,7 +193,7 @@ def main():
                     attempts += 1
                     retry_delay = min(120, 15 * 2 ** min(attempts - 1, 3))
             pending = None
-        if pending is None and (key != pending_key or (not rows and time.monotonic() - lookup_at >= retry_delay)):
+        if state.get('status') in ('Playing','Paused') and metadata['title'] and pending is None and (key != pending_key or (not rows and time.monotonic() - lookup_at >= retry_delay)):
             pending_key = key
             lookup_at = time.monotonic()
             pending = pool.submit(lookup, key)

@@ -22,7 +22,7 @@
     (button :class "desktop-app" :onclick command :halign "center" :tooltip title
       (image :path "${glyph-assets}/${icon}.svg" :image-width 40 :image-height 40))
     (label :class "desktop-app-label" :text title)))
-(deflisten island-art :initial '{"a":"background-color:#000000;","b":"background-color:#000000;","pane":0,"art":"","dock":""}' "python3 -u ~/.config/eww/scripts/island-art.py --stable-dock")
+(deflisten island-art :initial '{"a":"background-color:#181a1d; background-image:linear-gradient(135deg,#263e59,#181a1d);","b":"background-color:#181a1d; background-image:linear-gradient(135deg,#263e59,#181a1d);","pane":0,"art":"","dock":""}' "python3 -u ~/.config/eww/scripts/island-art.py --stable-dock --music-only-v4-gradient")
 (deflisten island-state :initial '{"active": "GlyphOS", "next": "Live activities", "synced": false, "marquee": false, "lyrics_mode": "none", "lyrics_description": "Live activities", "current_lyric": "", "next_lyric": "", "playing": false, "player": "", "line": -1, "title": "Nothing Playing", "artist": "No Artist", "status": "Stopped", "progress": 0, "pane": 0, "reveal_a": true, "reveal_b": false, "a": {"active": "GlyphOS", "next": "Live activities"}, "b": {"active": "GlyphOS", "next": "Live activities"}, "lyric_animating": false, "lyric_old": "", "lyric_promoted": "", "lyric_following": "", "lyric_old_y": 0, "lyric_active_y": 0, "lyric_next_y": 24, "lyric_old_alpha": 0, "lyric_active_alpha": 1, "lyric_next_alpha": 0.4, "lyric_active_size": 18}'
   "python3 -u ~/.config/eww/scripts/island-lyrics-listen.py")
 (defpoll bar-time :interval "1s" "date '+%I:%M:%S %p' | sed 's/^0//'")
@@ -102,7 +102,7 @@
   (image :visible cc-glyph :path "assets/dot-field-light.svg" :image-width 530 :image-height 235))
 (defvar settings-tab "Display")
 (defpoll settings-display :interval "30s" :initial '{"scale":"100%","scales":["100%","125%","150%","175%","200%"],"mode":"","modes":[],"summary":"Detecting displays…"}' "~/.config/eww/scripts/settings-display.py state")
-(deflisten glyph-dock :initial '{"items":[],"hidden":false,"style":""}' "python3 -u ~/.config/eww/scripts/dock-service.py listen")
+(deflisten glyph-dock :initial '{"items":[],"hidden":false,"style":""}' "python3 -u ~/.config/eww/scripts/dock-service.py listen --playback-palette-v2-codex")
 (defwindow dock
   :namespace "glyphos-dock"
   :monitor 0
@@ -111,17 +111,20 @@
   :focusable false
   (eventbox :class "dock-input" :visible {!glyph-dock.hidden} :onrightclick "python3 ~/.config/eww/scripts/dock-service.py menu"
   (box :class "dock-shadow-space"
-    (box :class "glass-dock" :style {island-art.art != "" && island-art.dock != "" ? island-art.dock : glyph-dock.style} :valign "center" :space-evenly false :spacing 17
+    (box :class "glass-dock" :style {island-state.status == "Playing" && island-art.dock != "" ? island-art.dock : "background-color:#181a1d; background-image:linear-gradient(135deg,#263e59,#181a1d);"} :valign "center" :space-evenly false :spacing 17
       (for app in {glyph-dock.items}
-        (button :class "circle-action dock-icon" :tooltip {app.name} :width 60 :height 60 :halign "center" :valign "center" :vexpand false :hexpand false
-          :onclick "python3 ~/.config/eww/scripts/dock-service.py launch ${app.id}"
-          :onrightclick "python3 ~/.config/eww/scripts/dock-service.py context ${app.id}"
-          (image :path {app.icon} :image-width 38 :image-height 38)))))))
+        (overlay :class "dock-slot" :width 60 :height 60 :halign "center" :valign "center"
+          (button :class "circle-action dock-icon" :tooltip {app.name} :width 60 :height 60 :halign "center" :valign "center" :vexpand false :hexpand false
+            :onclick "python3 ~/.config/eww/scripts/dock-service.py launch ${app.id}"
+            :onrightclick "python3 ~/.config/eww/scripts/dock-service.py context ${app.id}"
+            (image :class "dock-glyph" :path {app.icon} :image-width {app.id == "chat" || app.id == "music" ? 41 : 38} :image-height {app.id == "chat" || app.id == "music" ? 41 : 38}))
+          (box :class {app.running ? "dock-running-bar running" : "dock-running-bar"} :width 18 :height 3 :halign "center" :valign "end")))))))
 
 (defpoll cc-state :interval "3s" :initial '{"wifi":false,"ssid":"Wi-Fi","bluetooth":false,"device":"Not connected","brightness":0,"volume":0,"priority":0,"dnd":false}' "~/.config/eww/scripts/control-center.py status")
 (defvar cc-glyph true)
 (defvar cc-edit false)
-(defpoll cc-nightlight :interval "3s" :initial "false" "~/.config/eww/scripts/toggle-nightlight.sh status")
+(defpoll nightlight-state :interval "2s" :initial '{"enabled":false,"intensity":50}' "python3 ~/.config/glyphos/scripts/nightlight.py state")
+(defvar nightlight-slider-open false)
 (defpoll cc-brightness :interval "3s" :initial "50" "~/.config/eww/scripts/control-center.py brightness-value")
 (defpoll cc-volume :interval "3s" :initial "50" "~/.config/eww/scripts/control-center.py volume-value")
 (defwidget cc-quick [icon title enabled command]
@@ -166,8 +169,8 @@
         (label :text "${cc-state.priority} Priority Notifications" :halign "start")))
     (box :class "cc-actions" :space-evenly true :spacing 0
       (box :orientation "v" :space-evenly false :spacing 7
-        (button :class {cc-nightlight ? "cc-round cc-nightlight active" : "cc-round cc-nightlight"} :timeout "5s" :onclick "~/.config/eww/scripts/toggle-nightlight.sh" :tooltip {cc-nightlight ? "Night Light on · Warm 4000 K" : "Night Light off"} :halign "center"
-          (image :path {cc-nightlight ? "${glyph-assets}/cc-nightlight-active.svg" : "${glyph-assets}/cc-nightlight.svg"} :image-width 30 :image-height 30))
+        (button :class {nightlight-state.enabled ? "cc-round cc-nightlight active" : "cc-round cc-nightlight"} :timeout "5s" :onclick "~/.config/eww/scripts/toggle-nightlight.sh" :onrightclick "eww update nightlight-slider-open=${!nightlight-slider-open}" :tooltip "Night Light · Right-click to adjust warmth" :halign "center"
+          (image :path {nightlight-state.enabled ? "${glyph-assets}/cc-nightlight-active.svg" : "${glyph-assets}/cc-nightlight.svg"} :image-width 30 :image-height 30))
         (label :class "cc-caption" :text "Night Light"))
       (cc-quick :icon "capture" :title "Screenshot" :enabled true :command "~/.config/eww/scripts/control-center.py screenshot")
       (cc-quick :icon "mute" :title "Mute" :enabled true :command "~/.config/eww/scripts/control-center.py mute")
@@ -176,6 +179,12 @@
         (button :class {cc-state.dnd ? "cc-round active" : "cc-round"} :onclick "~/.config/eww/scripts/control-center.py dnd" :tooltip "Do Not Disturb" :halign "center"
           (image :path "${glyph-assets}/cc-dnd.svg" :image-width 30 :image-height 30))
         (label :class "cc-caption" :text "DND")))
+    (revealer :reveal nightlight-slider-open :transition "slidedown" :duration "180ms"
+      (box :class "nightlight-intensity" :orientation "v" :space-evenly false :spacing 8
+        (box :space-evenly false
+          (label :text "Night Light intensity" :halign "start" :hexpand true)
+          (label :text "${nightlight-state.intensity}%"))
+        (scale :class "cc-slider" :min 0 :max 100 :value {nightlight-state.intensity} :timeout "1s" :onchange "python3 ~/.config/glyphos/scripts/nightlight.py set {}")))
     (revealer :reveal cc-edit :transition "slidedown"
       (label :class "cc-edit-note" :wrap true :text "Desktop shortcuts: Night Light, Screenshot, Mute, Lock and DND. Brightness and volume sliders apply immediately."))
     (box :class "cc-footer" :space-evenly false :spacing 12 :halign "end" :vexpand true :valign "end"
@@ -247,10 +256,7 @@
 (defwidget glyphos-settings-panel [window-name]
  (box :class "gs-window" :orientation "v" :space-evenly false
   (box :class "gs-titlebar" :space-evenly false :spacing 14
-   (label :text "☰") (label :text "Glyph Control Center" :hexpand true :halign "start")
-   (button :class "gs-control" :onclick "~/.config/eww/scripts/window-management.py panel minimize ${window-name}" "−")
-   (button :class "gs-control" :onclick "~/.config/eww/scripts/window-management.py panel maximize ${window-name}" "□")
-   (button :class "gs-control" :onclick "~/.config/eww/scripts/window-management.py panel close ${window-name}" "×"))
+   (label :text "☰") (label :text "Glyph Control Center" :hexpand true :halign "start"))
   (box :space-evenly false :vexpand true
    (box :class "gs-sidebar" :width 244 :orientation "v" :space-evenly false
     (label :class "gs-brand" :text "GLYPH CONTROL CENTER" :halign "start")
@@ -507,7 +513,7 @@ Review available system updates before installing." : "Manage your ${settings-ta
       (label :class "ndot-heading" :markup "<span font_family='Ndot 55'>${launcher-weather.temperature}</span>"))
     (box :space-evenly false :spacing 30
       (label :class "ndot-heading" :markup "<span font_family='Ndot 55'>CLOCK</span>")
-      (image :path "assets/cloud.svg" :image-width 108 :image-height 62)
+      (image :path "assets/cloud-dark.svg" :image-width 108 :image-height 62)
       (label :class "desktop-city" :text {launcher-weather.location} :valign "start"))))
 
 (defpoll usb-devices :interval "5s" "lsusb | grep -v 'Linux Foundation' | cut -d' ' -f7- | head -6")

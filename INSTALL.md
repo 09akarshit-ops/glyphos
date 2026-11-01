@@ -133,3 +133,17 @@ fast cached artwork blur; FFmpeg provides the fallback.
 
 Super+P requires `grim`, `wl-copy` (wl-clipboard) and `notify-send` (libnotify). It
 saves to `~/Pictures` and copies the same PNG; it does not change the Print binding.
+
+### Wallpaper and Night Light (November update)
+
+The current wallpaper asset is `assets/wallpaperfinal.jpg`. On systems providing
+`swww`, start its daemon and use `swww img /absolute/path/wallpaperfinal.jpg`.
+On newer Arch systems the renamed equivalent is `awww-daemon` followed by
+`awww img /absolute/path/wallpaperfinal.jpg`. The wallpaper was selected for the
+current session; this update does not rewrite the user's wallpaper startup logic.
+
+Right-click **Night Light** in Control Center to reveal the intensity slider.
+Left-click toggles it. Zero disables warmth; enabling from zero restores 50%.
+Preferences live in `~/.local/state/glyphos/nightlight.json`; generated shaders
+are cached outside the repository. Hyprland's screen-shader support is required.
+The Codex dock shortcut additionally requires Kitty and an installed Codex CLI.
