@@ -103,6 +103,8 @@
 (defvar settings-tab "Display")
 (defpoll settings-display :interval "30s" :initial '{"scale":"100%","scales":["100%","125%","150%","175%","200%"],"mode":"","modes":[],"summary":"Detecting displays…"}' "~/.config/eww/scripts/settings-display.py state")
 (deflisten glyph-dock :initial '{"items":[],"hidden":false,"style":""}' "python3 -u ~/.config/eww/scripts/dock-service.py listen --playback-palette-v2-codex")
+(defvar dock-drag-source "")
+(defvar dock-drag-target "")
 (defwindow dock
   :namespace "glyphos-dock"
   :monitor 0
@@ -113,7 +115,7 @@
   (box :class "dock-shadow-space"
     (box :class "glass-dock" :style {island-state.status == "Playing" && island-art.dock != "" ? island-art.dock : "background-color:#181a1d; background-image:linear-gradient(135deg,#263e59,#181a1d);"} :valign "center" :space-evenly false :spacing 17
       (for app in {glyph-dock.items}
-        (overlay :class "dock-slot" :width 60 :height 60 :halign "center" :valign "center"
+        (overlay :class {dock-drag-target == app.id && dock-drag-source != app.id ? "dock-slot dock-drop-target" : dock-drag-source == app.id ? "dock-slot dock-dragging" : "dock-slot"} :width 60 :height 60 :halign "center" :valign "center"
           (button :class "circle-action dock-icon" :tooltip {app.name} :width 60 :height 60 :halign "center" :valign "center" :vexpand false :hexpand false
             :onclick "python3 ~/.config/eww/scripts/dock-service.py launch ${app.id}"
             :onrightclick "python3 ~/.config/eww/scripts/dock-service.py context ${app.id}"

@@ -56,8 +56,10 @@ config/eww/assets/cc-sun-dark.svg
 config/eww/assets/cc-sun.svg
 config/eww/assets/chat-dark.svg
 config/eww/assets/chat.svg
+config/eww/assets/claude.svg
 config/eww/assets/cloud-dark.svg
 config/eww/assets/cloud.svg
+config/eww/assets/codex-dark.svg
 config/eww/assets/codex.svg
 config/eww/assets/control-close.svg
 config/eww/assets/control-maximize.svg
@@ -145,6 +147,7 @@ config/eww/scripts/app_service.py
 config/eww/scripts/clipboard-history.py
 config/eww/scripts/control-center.py
 config/eww/scripts/desktop-status.py
+config/eww/scripts/dock-drag.py
 config/eww/scripts/dock-service.py
 config/eww/scripts/island-action.py
 config/eww/scripts/island-art.py
@@ -395,6 +398,7 @@ screenshots/day-08-2026-10-08/lyrics.png
 screenshots/day-08-2026-10-08/start-menu.png
 system/plasmalogin.conf.d/90-glyphos-autologin.conf.example
 tests/artwork_handoff_test.py
+tests/dock_drag_test.py
 tests/dock_running_test.py
 tests/file_manager_mesh_test.py
 tests/fullscreen_island_test.py

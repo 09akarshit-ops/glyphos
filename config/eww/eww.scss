@@ -832,8 +832,18 @@ window {background-color:transparent; background-image:none; box-shadow:none;}
  box-shadow:0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
+/* Flat glass surfaces: no outer glow on the dock or desktop player. */
+.nowplaying-art .music-card,
+.nowplaying-art.idle .music-card,
+.nowplaying-art.has-artwork .music-card,
+.glass-dock { box-shadow:none; }
+
 /* White desktop NDOT lettering on wallpaperfinal. */
 .desktop-heading .ndot-heading {color:#ffffff;}
 
 // Night Light: inline intensity controls, no focus-taking popup.
 .nightlight-intensity { padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.09); border: 1px solid rgba(128,128,128,0.18); }
+
+/* Drag feedback stays inside existing bounds; no outer glow or size changes. */
+.dock-dragging .dock-glyph {opacity:0.45;}
+.dock-drop-target {border-radius:16px; background-color:rgba(255,255,255,0.14);}

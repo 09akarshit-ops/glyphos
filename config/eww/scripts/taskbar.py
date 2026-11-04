@@ -87,7 +87,7 @@ class Icons:
             from gi.repository import Gtk, Gio
             self.theme = Gtk.IconTheme.get_default()
             for app in Gio.AppInfo.get_all():
-                for key in (app.get_id().removesuffix('.desktop'), app.get_startup_wm_class()):
+                for key in (app.get_id().removesuffix('.desktop'), app.get_startup_wm_class(), Path(app.get_executable() or '').name):
                     if key and app.get_icon():
                         self.apps[key.lower()] = app.get_icon()
         except (ImportError, ValueError, AttributeError):
@@ -105,16 +105,30 @@ class Icons:
             return str(BASE / 'assets/gemini.svg')
         if browser:
             return str(BASE / 'assets/browser-dark.svg')
-        if name not in self.cache:
+        identities = {str(client.get(key) or '').lower() for key in ('class', 'initialClass')}
+        if 'glyphos-codex' in identities or ('kitty' in identities and title == 'codex'):
+            return str(BASE / 'assets/codex-dark.svg')
+        names = [client.get('class', ''), client.get('initialClass', '')]
+        # Custom window classes need their installed application's desktop identity.
+        aliases = {'org.glyphos.files': 'org.glyphos.Files', 'glyphos-files': 'org.glyphos.Files',
+                   'glyphos-app-store': 'glyphos-app-store', 'glyphos-terminal': 'kitty'}
+        names += [aliases[n.lower()] for n in names if n.lower() in aliases]
+        cache_key = tuple(names)
+        if cache_key not in self.cache:
             icon = None
             if self.theme:
-                gicon = self.apps.get(name.lower())
-                if gicon:
-                    icon = self.theme.lookup_by_gicon(gicon, 24, 0)
+                for candidate in names:
+                    gicon = self.apps.get(candidate.lower())
+                    if gicon:
+                        icon = self.theme.lookup_by_gicon(gicon, 24, 0)
+                    if not icon:
+                        icon = self.theme.lookup_icon(candidate.lower(), 24, 0)
+                    if icon:
+                        break
                 if not icon:
-                    icon = self.theme.lookup_icon(name.lower(), 24, 0)
-            self.cache[name] = icon.get_filename() if icon else str(BASE / 'assets/glyphos-dark.svg')
-        return self.cache[name]
+                    icon = self.theme.lookup_icon('application-x-executable', 24, 0)
+            self.cache[cache_key] = icon.get_filename() if icon else str(BASE / 'assets/files.svg')
+        return self.cache[cache_key]
 
 
 def windows(icons):

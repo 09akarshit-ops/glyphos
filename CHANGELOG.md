@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-11-04 — dock dragging and application icons
+
+- Add persistent dock reordering by holding an icon, dragging onto another slot
+  and releasing. Dim the source, highlight the destination, cancel drops outside
+  the dock, and suppress accidental launches after a drag. Non-consuming Hyprland
+  bindings preserve normal clicks; cursor sampling runs only during a press.
+- Add the monochrome Claude icon asset for the installed Claude dock shortcut.
+- Resolve taskbar icons using current/initial window classes and desktop executable
+  identities; give Codex its own icon instead of the GlyphOS fallback.
+- Remove outer glow from the dock and Now Playing while preserving glass surfaces.
+
+Validation: fixture checks for dock hit regions, bidirectional reorder persistence,
+preference preservation and launch suppression; existing dock running-app tests;
+live taskbar output identifies Codex correctly. Screenshot publication remains
+pending and is not included in this code commit.
+
+
 ## 2026-11-02 — desktop integration, media policy and Night Light
 
 - Add a right-click Night Light intensity slider inside Control Center. Persist

@@ -54,6 +54,11 @@ def snapshot(value,icons=None,clients=(),layers=(),classes=None):
  if len(color)==9:color='rgba('+','.join(str(int(color[i:i+2],16)) for i in (1,3,5))+','+str(round(int(color[7:9],16)/255,4))+')'
  return dict(items=rows,hidden=bool(value.get('hidden')),style='background-color:'+color+'; background-image:none;' if color else '')
 def launch(key):
+ # A completed icon drag must not activate the app on button release.
+ import importlib.util
+ spec=importlib.util.spec_from_file_location('dock_drag',BASE/'scripts/dock-drag.py')
+ drag=importlib.util.module_from_spec(spec);spec.loader.exec_module(drag)
+ if drag.blocked(key):return
  entry=item(key)
  if not entry:return
  builtin=entry.get('builtin')
