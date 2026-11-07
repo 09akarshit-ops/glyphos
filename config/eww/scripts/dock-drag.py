@@ -103,8 +103,18 @@ def begin():
             state.update(dragged=dragged,expires=time.time()+.8);write(STATE,state)
             if dragged:feedback()
 
+def shift_press():
+    layer=dock_layer(query('layers'));cursor=query('cursorpos')
+    rows=read(PREFS,{}).get('items',[])
+    index=hit(cursor,layer,len(rows))
+    if index is not None:
+        write(RUNTIME/'glyphos-dock-shift.json',{'id':rows[index]['id'],'time':time.time()})
+
 def main():
-    if len(sys.argv)>1 and sys.argv[1]=='release':
+    if len(sys.argv)>1 and sys.argv[1]=='shift-press':
+        try:shift_press()
+        except (OSError,ValueError,KeyError,subprocess.SubprocessError):pass
+    elif len(sys.argv)>1 and sys.argv[1]=='release':
         RUNTIME.mkdir(parents=True,exist_ok=True);write(RELEASE,{'at':time.time()})
     else:
         try:begin()

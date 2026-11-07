@@ -53,7 +53,14 @@ def snapshot(value,icons=None,clients=(),layers=(),classes=None):
  if color and not re.fullmatch(r'#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?',color):color=''
  if len(color)==9:color='rgba('+','.join(str(int(color[i:i+2],16)) for i in (1,3,5))+','+str(round(int(color[7:9],16)/255,4))+')'
  return dict(items=rows,hidden=bool(value.get('hidden')),style='background-color:'+color+'; background-image:none;' if color else '')
-def launch(key):
+def launch(key, force_new=False):
+ # Shift-click is detected on mouse-down by a non-consuming Hyprland binding.
+ marker=Path(os.environ.get('XDG_RUNTIME_DIR',f'/tmp/glyphos-{os.getuid()}'))/'glyphos-dock-shift.json'
+ try:
+  value=json.loads(marker.read_text())
+  if value.get('id')==key and time.time()-value.get('time',0)<1.5:force_new=True
+  marker.unlink(missing_ok=True)
+ except (OSError,ValueError):pass
  # A completed icon drag must not activate the app on button release.
  import importlib.util
  spec=importlib.util.spec_from_file_location('dock_drag',BASE/'scripts/dock-drag.py')
@@ -62,6 +69,24 @@ def launch(key):
  entry=item(key)
  if not entry:return
  builtin=entry.get('builtin')
+ if not force_new:
+  try:
+   clients=json.loads(subprocess.check_output(['hyprctl','clients','-j'],text=True,timeout=2))
+   extra_classes=[]
+   if entry.get('desktop'):
+    from gi.repository import Gio
+    app_info=Gio.DesktopAppInfo.new(entry['desktop'])
+    if app_info:
+     extra_classes=[app_info.get_startup_wm_class() or '',Path(app_info.get_executable() or '').name]
+   candidates=[c for c in clients if c.get('mapped',True) and running(entry,[c],extra_classes=extra_classes)]
+   if candidates:
+    client=min(candidates,key=lambda c:c.get('focusHistoryID',999))
+    if client.get('workspace',{}).get('name')=='special:minimized':
+     subprocess.run([sys.executable,str(BASE/'scripts/taskbar.py'),'click',client['address']],timeout=4,check=True)
+    else:
+     subprocess.run(['hyprctl','dispatch','focuswindow',f"address:{client['address']}"],capture_output=True,text=True,timeout=2,check=True)
+    return
+  except (OSError,ValueError,KeyError,subprocess.SubprocessError):pass
  commands={'home':[str(Path.home()/'.local/bin/glyph-store')],'files':[str(Path.home()/'.local/bin/glyphos-files')],'chat':['brave','--app=https://web.whatsapp.com'],'ai':[str(Path.home()/'.config/glyphos/scripts/launch-gemini.sh')],'browser':['brave'],'codex':['kitty','--class','glyphos-codex','--title','Codex','--directory',str(Path.home()/'glyphos' if (Path.home()/'glyphos').is_dir() else Path.home()),'-e',str(Path.home()/'.local/bin/codex')],'settings':[sys.executable,str(BASE/'scripts/settings-display.py'),'fullscreen'],'music':['spotify'],'vlc':['vlc'],'photos':[str(Path.home()/'.local/bin/glyphos-files'),str(Path.home()/'Pictures')]}
  if builtin:subprocess.Popen(commands[builtin],start_new_session=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
  else:
@@ -208,7 +233,7 @@ def ui(mode,key=''):
  if mode=='context':
   entry=item(key)
   if not entry:return
-  title(entry['name']);button('Remove from Dock',lambda:finish(remove))
+  title(entry['name']);button('New Window · Shift+Left Click',lambda:finish(lambda:launch(key,True)));button('Remove from Dock',lambda:finish(remove))
   from app_service import resolve,entry as registered,installed
   app=registered(key) if key.startswith('app-') else resolve({'class':{'browser':'brave','files':'org.glyphos.Files','home':'app-store.py','music':'spotify','vlc':'vlc'}.get(key,'')})
   flatpak=bool(app and app.get('flatpak') and app['flatpak'] in installed())

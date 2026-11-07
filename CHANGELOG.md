@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-07 — dock window activation
+
+- Make dock clicks focus the existing application window or restore it when minimized.
+- Add Shift+left-click for a new window and expose the action in each app context menu.
+- Match custom pinned apps through desktop-file startup classes and executables.
+
+
 ## 2026-11-04 — dock dragging and application icons
 
 - Add persistent dock reordering by holding an icon, dragging onto another slot
